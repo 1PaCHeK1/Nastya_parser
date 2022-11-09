@@ -1,0 +1,26 @@
+[project]
+name = "PARSER"
+version = "0.1"
+description = ""
+authors = [
+    {name = "maksyutov vlad", email = "maksyutov.vlad@gmail.com"},
+]
+dependencies = [
+    "dependency-injector>=4.40.0",
+    "SQLAlchemy>=1.4.43",
+    "psycopg2>=2.9.5",
+    "pydantic>=1.10.2",
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}
+[project.optional-dependencies]
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
+
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.2.0",
+]
