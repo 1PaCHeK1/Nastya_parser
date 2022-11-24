@@ -4,9 +4,11 @@ from typing import Callable
 import logging
 
 from sqlalchemy import create_engine, orm
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import declarative_base, Session
 
 logger = logging.getLogger(__name__)
+
+Base = declarative_base()
 
 
 class Database:

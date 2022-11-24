@@ -1,24 +1,28 @@
-import asyncio
+from aiogram import executor
+
 from core.containers import Container, Provide, inject
 from core.users.services import UserService
 from core.utils.services import RedisService
 
-
-@inject
-async def func(
-    user_service: UserService = Provide[Container.user_service],
-    redis_service: RedisService = Provide[Container.redis_service]
-):
-    print(await user_service.get_users())
-    print(await redis_service.process())
+from bot.core.dispatcher import dp
 
 
-async def main():
-    container = Container()
-    container.init_resources()
-    container.wire(modules=[__name__])
-
-    await func()
+@dp.message_handler(commands=["start"])
+async def welcome_command(message):
+    print("asdasdasdasd")
+    await message.reply("HELLO!")
 
 
-asyncio.run(main())
+async def on_startup(dp):
+    ...
+
+
+def main():
+    executor.start_polling(
+        dp, 
+        on_startup=on_startup,
+    )
+
+
+if __name__ == "__main__":
+    main()

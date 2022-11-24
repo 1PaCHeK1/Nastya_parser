@@ -17,12 +17,10 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from core.users.models import Base as user_base
-from core.words.models import Base as word_base
+from core.database import Base
 
 target_metadata = [
-    user_base.metadata,
-    # word_base.metadata,
+    Base
 ]
 
 from core.config import config as app_config

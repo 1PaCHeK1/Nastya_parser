@@ -1,10 +1,7 @@
 from datetime import date
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
-from core.users.models import Base
-
-
-Base = declarative_base()
+from core.database import Base
 
 
 class BaseModel(Base):

@@ -1,8 +1,10 @@
 from contextlib import AbstractContextManager
 from typing import Callable
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from .models import User 
+from core.words.models import FavoriteWord
+
 
 class UserService:
     def __init__(self, session:Callable[..., AbstractContextManager[Session]]) -> None:
@@ -10,9 +12,40 @@ class UserService:
     
     async def get_users(self) -> list[User]:
         with self.session() as db:
-            print(db.query(User).all())
             return db.query(User).all()
     
     async def get_user(self, id) -> User:
-        return id+1
+        with self.session() as db:
+            user:User = (
+                db
+                .query(User)
+                .where(User.id==id)
+                .one()
+            )
 
+            return user
+
+    async def create_user(
+        self, 
+        username,
+        email,
+        tg_id,
+    ) -> User:
+        
+        user = User(
+            username=username,
+            email=email,
+            tg_id=tg_id,
+        )
+        with self.session() as db:
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            return user
+
+    async def update_user(self, user:User) -> User:
+        with self.session() as db:
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            return user

@@ -1,9 +1,9 @@
 from datetime import date
-from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Date
 
+from core.database import Base
 
-Base = declarative_base()
 
 class BaseModel(Base):
     __abstract__ = True
@@ -18,3 +18,5 @@ class User(BaseModel):
     email = Column(String(length=128), unique=True)
     tg_id = Column(Integer, unique=True)
     create_at = Column(Date, default=date.today)
+
+    favorite_words = relationship("FavoriteWord")
