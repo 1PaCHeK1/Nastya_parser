@@ -1,20 +1,20 @@
-from aiogram import executor
+from aiogram import executor, Dispatcher, types
 
 from core.containers import Container, Provide, inject
 from core.users.services import UserService
 from core.utils.services import RedisService
 
-from bot.core.dispatcher import dp
+from bot.commands import dp
 
 
-@dp.message_handler(commands=["start"])
-async def welcome_command(message):
-    print("asdasdasdasd")
-    await message.reply("HELLO!")
-
-
-async def on_startup(dp):
-    ...
+async def on_startup(dp:Dispatcher):
+    await dp.bot.set_my_commands([
+        types.BotCommand("start", "Запуск бота"),
+        types.BotCommand("help", "Информация"),
+        types.BotCommand("favorites", "Избранные"),
+        types.BotCommand("settings", "Настройки"),
+        types.BotCommand("list", "Случайные слова"),
+    ])
 
 
 def main():
