@@ -15,6 +15,12 @@ async def on_startup(dp:Dispatcher):
         types.BotCommand("settings", "Настройки"),
         types.BotCommand("list", "Случайные слова"),
     ])
+    
+    container = Container()
+    container.init_resources()
+    container.wire(packages=[
+        "bot.commands",
+    ])
 
 
 def main():

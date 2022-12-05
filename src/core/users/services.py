@@ -1,7 +1,8 @@
 from contextlib import AbstractContextManager
 from typing import Callable
+from core.users.schemas import UserCreate
 from sqlalchemy.orm import Session, joinedload
-
+from sqlalchemy import func
 from .models import User 
 from core.words.models import FavoriteWord
 
@@ -25,18 +26,16 @@ class UserService:
 
             return user
 
+    async def check_user(self, tg_id:int):
+        with self.session() as db:
+            return bool(db.query(User.id).where(User.tg_id==tg_id).scalar())
+
     async def create_user(
         self, 
-        username,
-        email,
-        tg_id,
+        user: UserCreate
     ) -> User:
         
-        user = User(
-            username=username,
-            email=email,
-            tg_id=tg_id,
-        )
+        user = User(**user.dict())
         with self.session() as db:
             db.add(user)
             db.commit()

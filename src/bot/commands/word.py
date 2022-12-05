@@ -1,23 +1,9 @@
 import json
 from aiogram import types
 from aiogram.dispatcher.filters import Command
-from bot.commands.callback_enum import CallbakDataEnum
+from bot.keyboards.callback_enum import CallbakDataEnum
 from bot.core.dispatcher import dp
-
-
-@dp.message_handler()
-async def translate_word(message: types.Message):
-    reply_markup = (types.ReplyKeyboardMarkup(resize_keyboard=True)
-              .add(types.KeyboardButton("1"))
-              .add(types.KeyboardButton("2"))
-              .add(types.KeyboardButton("3"))
-    )
-    print(CallbakDataEnum.save_favorite.value)
-    inline_markup = (
-        types.InlineKeyboardMarkup()
-        .add(types.InlineKeyboardButton("Добавить в избранное", callback_data=CallbakDataEnum.save_favorite))
-    )
-    await message.reply("Перевод", reply_markup=inline_markup)
+import bot.keyboards.inline as key_inline
 
 
 @dp.message_handler(Command("favorites"))
@@ -44,20 +30,17 @@ async def callback(data:types.callback_query.CallbackQuery):
 async def add_favorite(data:types.callback_query.CallbackQuery):
     word = data.message.reply_to_message.text
     translate = data.message.text
-    inline_markup = (
-        types.InlineKeyboardMarkup()
-        .add(types.InlineKeyboardButton("Удалить из избранного", callback_data=CallbakDataEnum.remove_favorite))
-    )
     await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")
-    await data.message.edit_reply_markup(inline_markup)
+    await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
 async def remove_favorite(data:types.callback_query.CallbackQuery):
     word = data.message.reply_to_message.text
     translate = data.message.text
-    inline_markup = (
-        types.InlineKeyboardMarkup()
-        .add(types.InlineKeyboardButton("Добавить в избранное", callback_data=CallbakDataEnum.save_favorite))
-    )
     await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")
-    await data.message.edit_reply_markup(inline_markup)
+    await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
+
+
+@dp.message_handler()
+async def translate_word(message: types.Message):
+    await message.reply("Перевод", reply_markup=key_inline.add_favorite_keyboard)
