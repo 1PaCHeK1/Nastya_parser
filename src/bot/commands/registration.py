@@ -8,7 +8,7 @@ from core.containers import Container, Provide, inject
 from core.users.schemas import UserCreate
 from core.users.services import UserService
 from core.utils.services import RedisService
-
+from core import texts
 from bot.core.dispatcher import dp
 from bot.states.registration import RegistrationState
 
@@ -20,9 +20,9 @@ async def start_registration(
     user_service: UserService = Provide[Container.user_service]
 ):
     if await user_service.check_user(message.from_id):
-        return await message.answer("Already registrated")
+        return await message.answer(texts.already_registered_text)
 
-    await message.answer("USERNAME")
+    await message.answer(texts.username_text)
     await RegistrationState.username.set()
 
 
@@ -31,7 +31,7 @@ async def start_registration(
     RegistrationState.email,
 ])
 async def cancel_registration(message: types.Message, state: FSMContext):
-    await message.answer("CANCEL")
+    await message.answer(texts.cancel_text)
     await state.finish()
 
 
@@ -39,7 +39,7 @@ async def cancel_registration(message: types.Message, state: FSMContext):
 async def username_registration(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["username"] = message.text
-    await message.answer("EMAIL")
+    await message.answer(texts.email_text)
     await RegistrationState.email.set()
 
 
@@ -54,7 +54,7 @@ async def email_registration(
     state: FSMContext,
     user_service: UserService = Provide[Container.user_service]
 ):
-    await message.reply("Invalid email")
+    await message.reply(texts.invalid_registration_email_text)
 
 
 @dp.message_handler(state=RegistrationState.email)
@@ -76,5 +76,5 @@ async def email_registration(
         )
     )
 
-    await message.answer("FINISH")
+    await message.answer(texts.finish_registration_text)
     await state.finish()

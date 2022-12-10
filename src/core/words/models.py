@@ -29,6 +29,7 @@ class Word(BaseModel):
 
     text = Column(String)
     translate = Column(String)
+    translate_id = Column(ForeignKey("translates.id", ondelete="CASCADE"))
 
 
 class FavoriteWord(BaseModel):
@@ -36,6 +37,5 @@ class FavoriteWord(BaseModel):
     
     user_id = Column(ForeignKey("users.id", ondelete="CASCADE"))
     word_id = Column(ForeignKey("words.id", ondelete="CASCADE"))
-    translate_id = Column(ForeignKey("translates.id", ondelete="CASCADE"))
 
     user = relationship("User")
