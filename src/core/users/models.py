@@ -1,6 +1,6 @@
 from datetime import date
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, Boolean
 
 from core.database import Base
 
@@ -18,5 +18,6 @@ class User(BaseModel):
     email = Column(String(length=128), unique=True)
     tg_id = Column(Integer, unique=True)
     create_at = Column(Date, default=date.today)
+    is_active = Column(Boolean, default=False)
 
     favorite_words = relationship("FavoriteWord")

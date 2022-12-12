@@ -5,10 +5,10 @@ from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
 
 from core.containers import Container, Provide, inject
-from core.users.schemas import UserCreate
+from core.users.schemas import UserCreateSchema
 from core.users.services import UserService
 from core.utils.services import RedisService
-from core import texts
+from bot.core import texts
 from bot.core.dispatcher import dp
 from bot.states.registration import RegistrationState
 
@@ -19,6 +19,7 @@ async def start_registration(
     message: types.Message, 
     user_service: UserService = Provide[Container.user_service]
 ):
+    """Функция начала регистрации"""
     if await user_service.check_user(message.from_id):
         return await message.answer(texts.already_registered_text)
 
@@ -41,7 +42,6 @@ async def username_registration(message: types.Message, state: FSMContext):
         data["username"] = message.text
     await message.answer(texts.email_text)
     await RegistrationState.email.set()
-
 
 
 @dp.message_handler(
@@ -69,7 +69,7 @@ async def email_registration(
         result = data.as_dict()
 
     await user_service.create_user(
-        UserCreate(
+        UserCreateSchema(
             username=result["username"],
             email=result["email"],
             tg_id=message.from_id,

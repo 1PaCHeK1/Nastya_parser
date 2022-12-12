@@ -1,9 +1,16 @@
+from contextlib import AbstractContextManager
+from typing import Callable
 from .models import User 
+from sqlalchemy.orm import Session
+
 from core.words.models import FavoriteWord
 
 
-class UserService:
-    def __init__(self, session:Callable[..., AbstractContextManager[Session]]) -> None:
+class WordService:
+    def __init__(
+        self, 
+        session:Callable[..., AbstractContextManager[Session]]
+    ) -> None:
         self.session = session
     
     async def get_users(self) -> list[User]:

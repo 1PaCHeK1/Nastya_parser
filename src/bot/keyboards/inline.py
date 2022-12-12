@@ -1,6 +1,6 @@
 from aiogram import types
 from bot.keyboards.callback_enum import CallbakDataEnum
-from core import texts 
+from bot.core import texts 
 
 add_favorite_keyboard = (
     types.InlineKeyboardMarkup()
