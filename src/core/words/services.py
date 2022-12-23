@@ -12,11 +12,11 @@ class WordService:
         session:Callable[..., AbstractContextManager[Session]]
     ) -> None:
         self.session = session
-    
+
     async def get_users(self) -> list[User]:
         with self.session() as db:
             return db.query(User).all()
-    
+
     async def get_user(self, id) -> User:
         with self.session() as db:
             user:User = (

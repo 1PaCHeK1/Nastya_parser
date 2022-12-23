@@ -6,19 +6,33 @@ from bot.core.dispatcher import dp
 import bot.keyboards.inline as key_inline
 
 
+from core.containers import Container, Provide, inject
+from core.users.schemas import UserCreateSchema
+from core.users.services import UserService
+from core.utils.services import RedisService
+
+
 @dp.message_handler(Command("favorites"))
 async def get_favorites(message: types.Message):
     await message.answer("Список избранных слов")
 
 
 @dp.message_handler(Command("list"))
-async def get_list_word(message: types.Message):
-    await message.answer("Список слов")
+@inject
+async def get_list_word(
+    message: types.Message,
+    redis_service: RedisService = Provide[Container.redis_service]
+):
+    texts = (
+        "\n".join(await redis_service.get_translations(message.from_id))
+        or "Вы пока не ввели ни одного слова"
+    )
+    await message.answer(texts)
 
 
 @dp.callback_query_handler()
-async def callback(data:types.callback_query.CallbackQuery):
-    match CallbakDataEnum(data.data):
+async def callback(data: types.callback_query.CallbackQuery):
+    match CallbakDataEnum(data.data):  # noqa: E999
         case CallbakDataEnum.save_favorite:
             await add_favorite(data)
         case CallbakDataEnum.remove_favorite:
@@ -42,5 +56,10 @@ async def remove_favorite(data:types.callback_query.CallbackQuery):
 
 
 @dp.message_handler()
-async def translate_word(message: types.Message):
+@inject
+async def translate_word(
+    message: types.Message,
+    redis_service: RedisService = Provide[Container.redis_service]
+):
+    await redis_service.get_translate(message.from_id, message.text)
     await message.reply("Перевод", reply_markup=key_inline.add_favorite_keyboard)

@@ -3,28 +3,40 @@ import re
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
+from bot.keyboards.callback_enum import CallbakDataEnum
 
 from core.containers import Container, Provide, inject
 from core.users.schemas import UserCreateSchema
 from core.users.services import UserService
-from core.utils.services import RedisService
 from bot.core import texts
 from bot.core.dispatcher import dp
 from bot.states.registration import RegistrationState
 
 
-@dp.message_handler(Command("registration", ignore_case=True))
 @inject
 async def start_registration(
     message: types.Message, 
     user_service: UserService = Provide[Container.user_service]
 ):
+
     """Функция начала регистрации"""
     if await user_service.check_user(message.from_id):
         return await message.answer(texts.already_registered_text)
 
     await message.answer(texts.username_text)
     await RegistrationState.username.set()
+
+
+@dp.message_handler(Command("registration", ignore_case=True))
+async def registration_message(
+    message: types.Message, 
+):
+    await start_registration(message)
+
+
+@dp.callback_query_handler(lambda o: o.data == CallbakDataEnum.registration.value)
+async def registration_callback(data: types.callback_query.CallbackQuery):
+    await start_registration(data.message)
 
 
 @dp.message_handler(Command("cancel", ignore_case=True), state=[

@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     
     redis_host: str 
     redis_port: int 
-    redis_database: str
     
     @property
     def database_connection_url(self):
@@ -21,7 +20,7 @@ class Settings(BaseSettings):
 
     @property
     def redis_connection_url(self):
-        return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_database}"
+        return f"redis://{self.redis_host}:{self.redis_port}"
 
 
 class DevSettings(Settings):
@@ -35,7 +34,6 @@ class DevSettings(Settings):
 
     redis_host: str = "localhost"
     redis_port: int = 6379
-    redis_database: str = 1
     
 
 class ProdSettings(Settings):

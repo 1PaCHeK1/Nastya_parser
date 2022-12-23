@@ -23,8 +23,19 @@ license = {text = "MIT"}
 requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
+[tool.pdm.scripts]
+ruf = "pdm run ruff ./src"
+
 [tool.pdm]
 [tool.pdm.dev-dependencies]
 dev = [
     "pytest>=7.2.0",
+    "ruff>=0.0.192",
+    "mypy>=0.991",
+]
+
+[tool.ruff]
+extend-exclude = [
+    "*/__init__.py",
+    "*/texts.py",
 ]
