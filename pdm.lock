@@ -76,6 +76,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "beautifulsoup4"
+version = "4.11.1"
+requires_python = ">=3.6.0"
+summary = "Screen-scraping library"
+dependencies = [
+    "soupsieve>1.2",
+]
+
+[[package]]
 name = "certifi"
 version = "2022.9.24"
 requires_python = ">=3.6"
@@ -248,6 +257,12 @@ requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 summary = "Python 2 and 3 compatibility utilities"
 
 [[package]]
+name = "soupsieve"
+version = "2.3.2.post1"
+requires_python = ">=3.6"
+summary = "A modern CSS selector implementation for Beautiful Soup."
+
+[[package]]
 name = "sqlalchemy"
 version = "1.4.44"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
@@ -280,7 +295,7 @@ dependencies = [
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:3f8836a31cfe20aa5b2b48869286bb2c31aa56325cca8e4f06ad84fb23b264aa"
+content_hash = "sha256:4e2aed97eb0672a7c34d04932587acfaf75b210074404a8280833ad279cd622c"
 
 [metadata.files]
 "aiogram 2.23.1" = [
@@ -399,6 +414,10 @@ content_hash = "sha256:3f8836a31cfe20aa5b2b48869286bb2c31aa56325cca8e4f06ad84fb2
 "babel 2.9.1" = [
     {url = "https://files.pythonhosted.org/packages/17/e6/ec9aa6ac3d00c383a5731cc97ed7c619d3996232c977bb8326bcbb6c687e/Babel-2.9.1.tar.gz", hash = "sha256:bc0c176f9f6a994582230df350aa6e05ba2ebe4b3ac317eab29d9be5d2768da0"},
     {url = "https://files.pythonhosted.org/packages/aa/96/4ba93c5f40459dc850d25f9ba93f869a623e77aaecc7a9344e19c01942cf/Babel-2.9.1-py2.py3-none-any.whl", hash = "sha256:ab49e12b91d937cd11f0b67cb259a57ab4ad2b59ac7a3b41d6c06c0ac5b0def9"},
+]
+"beautifulsoup4 4.11.1" = [
+    {url = "https://files.pythonhosted.org/packages/9c/d8/909c4089dbe4ade9f9705f143c9f13f065049a9d5e7d34c828aefdd0a97c/beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
+    {url = "https://files.pythonhosted.org/packages/e8/b0/cd2b968000577ec5ce6c741a54d846dfa402372369b8b6861720aa9ecea7/beautifulsoup4-4.11.1.tar.gz", hash = "sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"},
 ]
 "certifi 2022.9.24" = [
     {url = "https://files.pythonhosted.org/packages/1d/38/fa96a426e0c0e68aabc68e896584b83ad1eec779265a028e156ce509630e/certifi-2022.9.24-py3-none-any.whl", hash = "sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382"},
@@ -845,6 +864,10 @@ content_hash = "sha256:3f8836a31cfe20aa5b2b48869286bb2c31aa56325cca8e4f06ad84fb2
 "six 1.16.0" = [
     {url = "https://files.pythonhosted.org/packages/71/39/171f1c67cd00715f190ba0b100d606d440a28c93c7714febeca8b79af85e/six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
     {url = "https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+]
+"soupsieve 2.3.2.post1" = [
+    {url = "https://files.pythonhosted.org/packages/16/e3/4ad79882b92617e3a4a0df1960d6bce08edfb637737ac5c3f3ba29022e25/soupsieve-2.3.2.post1-py3-none-any.whl", hash = "sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759"},
+    {url = "https://files.pythonhosted.org/packages/f3/03/bac179d539362319b4779a00764e95f7542f4920084163db6b0fd4742d38/soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
 ]
 "sqlalchemy 1.4.44" = [
     {url = "https://files.pythonhosted.org/packages/00/41/678ed058d63e1baf1d44b45a2d8e8ce273de9c65fde4954824256c253689/SQLAlchemy-1.4.44-cp36-cp36m-win32.whl", hash = "sha256:6a06c2506c41926d2769f7968759995f2505e31c5b5a0821e43ca5a3ddb0e8ae"},

@@ -7,9 +7,8 @@ import bot.keyboards.inline as key_inline
 
 
 from core.containers import Container, Provide, inject
-from core.users.schemas import UserCreateSchema
-from core.users.services import UserService
 from core.utils.services import RedisService
+from parsers.translate_word import TranslateWordService
 
 
 @dp.message_handler(Command("favorites"))
@@ -59,7 +58,7 @@ async def remove_favorite(data:types.callback_query.CallbackQuery):
 @inject
 async def translate_word(
     message: types.Message,
-    redis_service: RedisService = Provide[Container.redis_service]
+    parser_service: TranslateWordService = Provide[Container._parser.translate_service] 
 ):
-    await redis_service.get_translate(message.from_id, message.text)
-    await message.reply("Перевод", reply_markup=key_inline.add_favorite_keyboard)
+    text = await parser_service.get_translate(message.text)
+    await message.reply(text, reply_markup=key_inline.add_favorite_keyboard)
