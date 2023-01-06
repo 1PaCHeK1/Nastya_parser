@@ -1,10 +1,8 @@
 from contextlib import AbstractContextManager
 from typing import Callable
 from core.users.schemas import UserSchema, UserCreateSchema, UserUpdateSchema
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy.orm import Session
 from .models import User 
-from core.words.models import FavoriteWord
 
 
 class UserService:

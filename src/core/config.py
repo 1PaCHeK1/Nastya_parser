@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     
     @property
     def database_connection_url(self):
-        return f"postgresql://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+        return f"postgresql://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"  # noqa: E501
 
     @property
     def redis_connection_url(self):

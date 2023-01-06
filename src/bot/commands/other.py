@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Command
 from bot.core.dispatcher import dp
 from bot.core import texts
-from bot.utils.auth import identify_user, required_login
+from bot.utils.auth import identify_user
 from core.users.schemas import UserSchema
 from bot.keyboards import inline
 

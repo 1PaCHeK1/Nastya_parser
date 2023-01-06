@@ -1,8 +1,6 @@
 from aiogram import executor, Dispatcher, types
 
-from core.containers import Container, Provide, inject
-from core.users.services import UserService
-from core.utils.services import RedisService
+from core.containers import Container
 
 from bot.commands import dp
 

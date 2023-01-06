@@ -43,14 +43,14 @@ async def callback(data: types.callback_query.CallbackQuery):
 async def add_favorite(data:types.callback_query.CallbackQuery):
     word = data.message.reply_to_message.text
     translate = data.message.text
-    await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")
+    await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
 async def remove_favorite(data:types.callback_query.CallbackQuery):
     word = data.message.reply_to_message.text
     translate = data.message.text
-    await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")
+    await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
 
 

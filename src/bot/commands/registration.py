@@ -1,4 +1,3 @@
-import json
 import re
 from aiogram import types
 from aiogram.dispatcher.filters import Command
@@ -57,7 +56,8 @@ async def username_registration(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(
-    lambda message: not re.match(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", message.text),
+    lambda message: not re.match(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+    message.text),
     state=RegistrationState.email
 )
 @inject
@@ -74,8 +74,7 @@ async def email_registration(
 async def email_registration(
     message: types.Message, 
     state: FSMContext,
-    user_service: UserService = Provide[Container.user_service],
-):
+    user_service: UserService = Provide[Container.user_service],):
     async with state.proxy() as data:
         data["email"] = message.text
         result = data.as_dict()
