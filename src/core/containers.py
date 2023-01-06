@@ -5,6 +5,7 @@ from parsers.container import ParserContainer
 from .config import DevSettings
 from .database import Database
 from .users import services as user_services
+from .words import services as word_services
 from .utils import services as util_services
 
 
@@ -31,8 +32,8 @@ class Container(containers.DeclarativeContainer):
         ParserContainer
     )
 
-    # word_service = providers.Factory(
-    #     ...,
-    #     session=database.provided.session,
-    #     parser=_parser
-    # )
+    word_service = providers.Factory(
+        word_services.WordService,
+        session=database.provided.session,
+        # parser=_parser
+    )

@@ -31,6 +31,15 @@ class Word(BaseModel):
     translate_id = Column(ForeignKey("translates.id", ondelete="CASCADE"))
 
 
+# class WordTranslate(BaseModel):
+#     word_from_id: int
+#     word_to_id: int
+#     translate_id: int
+
+# Привет -> Hello
+# Hi -> Привет
+# Привет -> Hello, Hi
+
 class FavoriteWord(BaseModel):
     __tablename__ = "favoriteword"
     
