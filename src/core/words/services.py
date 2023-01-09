@@ -1,41 +1,77 @@
 from contextlib import AbstractContextManager
 from typing import Callable
-from core.words.schemas import WordCreateSchema
+import sqlalchemy as sa
 from sqlalchemy.orm import Session
-import bs4
 
-from core.words.models import FavoriteWord
+from core.database import Database
+from core.users.schemas import UserSchema
+from core.words.schemas import WordCreateSchema
+from core.caches.services import RedisService
+from parsers.translate_word import TranslateWordService
 
 
+from core.words.models import Word, FavoriteWord, WordTranslate
+
+# redis -> database -> wooordhunt
 class WordService:
     def __init__(
         self, 
-        session: Callable[..., AbstractContextManager[Session]]
+        database: Database,
+        parser_service: TranslateWordService,
+        cache_service: RedisService,
     ) -> None:
-        self.session = session
+        
+        self.database = database
+        self.session: Callable[..., AbstractContextManager[Session]] = database.session
+        self.parser_service = parser_service
+        self.cache_service = cache_service
 
-    async def get_translate(self, word: str) -> str:
-        async with self.session.get(f"http://wooordhunt.ru/word/{word}", ssl=False) as response:
-            body = bs4.BeautifulSoup(await response.text(), features="html.parser")
-            translate = body.find("div", class_="t_inline_en") or body.find("p", class_="t_inline")
-            translate = translate.text if translate is not None else "Перевод не найден"
-            return translate
+    async def get_translate(self, user: UserSchema, word: str) -> str:
+        print("find in redis")
+        translate_words = None and await self.cache_service.get_translate(user, word)
+        if translate_words:
+            return translate_words
+        
+        print("find in database")
+        TranslateWord = sa.orm.util.AliasedClass(Word)
+        with self.session() as session:
+            translate_words = (
+                session
+                .query(Word.text, TranslateWord.text.label("translate_word"))
+                .join(WordTranslate, 
+                    (Word.id==WordTranslate.word_from_id) | (Word.id==WordTranslate.word_to_id)
+                )
+                .join(TranslateWord, 
+                    ((TranslateWord.id==WordTranslate.word_from_id) & (Word.id==WordTranslate.word_to_id))
+                    | ((Word.id==WordTranslate.word_from_id) & (TranslateWord.id==WordTranslate.word_to_id))
+                )
+                .where(Word.text==word)
+                .all()
+            )
+            translate_words = [
+                translate_word.translate_word
+                for translate_word in translate_words
+            ]
+
+        if translate_words is None:
+            print("find in site")
+            translate_words = await self.parser_service.get_translate(word)
+        
+        
+        await self.cache_service.set_translate(word, translate_words)
+        return translate_words
 
     async def get_phrases(self, word: str) -> str:
-        async with self.session.get(f"http://wooordhunt.ru/word/{word}", ssl=False) as response:
-            body = bs4.BeautifulSoup(await response.text(), features="html.parser")
-            phrases = body.find("div", class_="block phrases")
-            phrases = phrases.text if phrases is not None else "Фразы не найдены"
-            return phrases
+        ...
 
     async def get_examples(self, word: str) -> str:
-        async with self.session.get(f"http://wooordhunt.ru/word/{word}", ssl=False) as response:
-            body = bs4.BeautifulSoup(await response.text(), features="html.parser")
-            examples = body.find_all("p", class_="ex_o")
-            examples = '\n'.join([i.text for i in examples]) if examples is not [] else "Примеры не найдены"
-            return examples
+        ...
 
     async def append_word(self, word: WordCreateSchema):
         print("APPEND", word)
 
-# redis -> db -> wooordhunt
+# SELECT words.id AS words_id, words.text AS words_text, words.language_id AS words_language_id, words_1.text AS "translateWord" 
+# FROM words 
+# JOIN wordtranslates ON words.id = wordtranslates.word_from_id OR words.id = wordtranslates.word_to_id 
+# JOIN words AS words_1 ON words_1.id = wordtranslates.word_from_id AND words.id = wordtranslates.word_from_id OR words.id = wordtranslates.word_from_id AND words_1.id = wordtranslates.word_from_id 
+# WHERE words.text = %(text_1)s

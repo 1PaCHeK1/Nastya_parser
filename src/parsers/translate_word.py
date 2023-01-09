@@ -19,12 +19,12 @@ class TranslateWordService:
     def __init__(self) -> None:
         self.session = aiohttp.ClientSession()
 
-    async def get_translate(self, word):
+    async def get_translate(self, word: str) -> list[str]:
         async with self.session.get(f"http://wooordhunt.ru/word/{word}", ssl=False) as response:
             body = bs4.BeautifulSoup(await response.text(), features="html.parser")
             translate = body.find("div", class_="t_inline_en") or body.find("p", class_="t_inline")
             translate = translate.text if translate is not None else "Перевод не найден"
-            return translate
+            return translate.split(", ")
 
     async def __aexit__(self):
         await self.close()

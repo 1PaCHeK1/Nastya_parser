@@ -16,25 +16,26 @@ class Language(BaseModel):
     order = Column(Integer, default=1)
 
 
-class Translate(BaseModel):
-    __tablename__ = "translates"
-
-    from_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
-    to_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
-
 
 class Word(BaseModel):
     __tablename__ = "words"
 
     text = Column(String)
-    translate = Column(String)
-    translate_id = Column(ForeignKey("translates.id", ondelete="CASCADE"))
+    language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
 
 
-# class WordTranslate(BaseModel):
-#     word_from_id: int
-#     word_to_id: int
-#     translate_id: int
+class WordTranslate(Base):
+    __tablename__ = "wordtranslates"
+
+    word_from_id: int = Column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
+    word_to_id: int = Column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
+
+
+class Translate(BaseModel):
+    __tablename__ = "translates"
+
+    from_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
+    to_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
 
 # Привет -> Hello
 # Hi -> Привет

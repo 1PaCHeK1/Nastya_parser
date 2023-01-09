@@ -6,7 +6,7 @@ from .config import DevSettings
 from .database import Database
 from .users import services as user_services
 from .words import services as word_services
-from .utils import services as util_services
+from .caches import services as cache_services
 
 
 class Container(containers.DeclarativeContainer):
@@ -19,7 +19,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     redis_service = providers.Factory(
-        util_services.RedisService,
+        cache_services.RedisService,
         redis_url=config.provided.redis_connection_url
     )
 
@@ -34,6 +34,7 @@ class Container(containers.DeclarativeContainer):
 
     word_service = providers.Factory(
         word_services.WordService,
-        session=database.provided.session,
-        # parser=_parser
+        database=database,
+        parser_service=_parser.translate_service,
+        cache_service=redis_service,
     )

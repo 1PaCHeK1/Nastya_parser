@@ -2,11 +2,12 @@ import re
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
-from bot.keyboards.callback_enum import CallbakDataEnum
+from dependency_injector.wiring import Provide, inject
 
-from core.containers import Container, Provide, inject
+from core.containers import Container
 from core.users.schemas import UserCreateSchema
 from core.users.services import UserService
+from bot.keyboards.callback_enum import CallbakDataEnum
 from bot.core import texts
 from bot.core.dispatcher import dp
 from bot.states.registration import RegistrationState

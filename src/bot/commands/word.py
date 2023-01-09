@@ -1,14 +1,18 @@
-import json
 from aiogram import types
 from aiogram.dispatcher.filters import Command
+from bot.utils.auth import identify_user
+from core.users.schemas import UserSchema
+from dependency_injector.wiring import Provide, inject
+
 from bot.keyboards.callback_enum import CallbakDataEnum
 from bot.core.dispatcher import dp
+
 import bot.keyboards.inline as key_inline
 
 
-from core.containers import Container, Provide, inject
-from core.utils.services import RedisService
-from parsers.translate_word import TranslateWordService
+from core.containers import Container
+from core.caches.services import RedisService
+from core.words.services import WordService
 
 
 @dp.message_handler(Command("favorites"))
@@ -55,10 +59,13 @@ async def remove_favorite(data:types.callback_query.CallbackQuery):
 
 
 @dp.message_handler()
+@identify_user
 @inject
 async def translate_word(
     message: types.Message,
-    parser_service: TranslateWordService = Provide[Container._parser.translate_service] 
+    user: UserSchema,
+    word_service: WordService  = Provide[Container.word_service] 
 ):
-    text = await parser_service.get_translate(message.text)
-    await message.reply(text, reply_markup=key_inline.add_favorite_keyboard)
+    words = await word_service.get_translate(user, message.text)
+    words = ", ".join(words) or "Упс ничего не нашли"
+    await message.reply(words, reply_markup=key_inline.add_favorite_keyboard)
