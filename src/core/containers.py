@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from parsers.container import ParserContainer
 
-from .config import DevSettings
+from .config import get_config
 from .database import Database
 from .users import services as user_services
 from .words import services as word_services
@@ -11,16 +11,16 @@ from .caches import services as cache_services
 
 class Container(containers.DeclarativeContainer):
     
-    config = providers.Resource(DevSettings)
-    
+    config = providers.Configuration(pydantic_settings=[get_config()])
+
     database = providers.Singleton(
         Database,
-        db_url=config.provided.database_connection_url
+        db_url=config.db_url
     )
 
     redis_service = providers.Factory(
         cache_services.RedisService,
-        redis_url=config.provided.redis_connection_url
+        redis_url=config.redis_url
     )
 
     user_service = providers.Factory(

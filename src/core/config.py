@@ -1,4 +1,16 @@
+import os
+from dotenv import load_dotenv
+from pathlib import Path
 from pydantic import BaseSettings
+
+from bot.core.config import (
+    BotSettings, 
+    DevBotSettings, 
+    ProdBotSettings
+)
+
+
+base_dir = Path(__file__).absolute().parent.parent
 
 
 class Settings(BaseSettings):
@@ -10,17 +22,13 @@ class Settings(BaseSettings):
     db_port: int
     db_user: str
     db_pass: str
-    
+    db_url: str
+
     redis_host: str 
     redis_port: int 
-    
-    @property
-    def database_connection_url(self):
-        return f"postgresql://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"  # noqa: E501
+    redis_url: str
 
-    @property
-    def redis_connection_url(self):
-        return f"redis://{self.redis_host}:{self.redis_port}"
+    bot: BotSettings
 
 
 class DevSettings(Settings):
@@ -31,16 +39,34 @@ class DevSettings(Settings):
     db_port: int = 6000
     db_user: str = "root"
     db_pass: str = "root"
-
+    db_url: str = "postgresql://root:root@localhost:6000/parser"
     redis_host: str = "localhost"
     redis_port: int = 6379
-    
+    redis_url: str = "redis://localhost:6379"
+
+    bot: DevBotSettings = DevBotSettings()
+
 
 class ProdSettings(Settings):
     debug: bool = False
 
-    class Meta:
-        env_file = ".env"
+    bot: ProdBotSettings
+
+    class Config:
+        env_nested_delimiter = "."
+        env_file = base_dir / ".env.dev", base_dir / ".env.prod"
+        env_file_encoding = "utf-8"
 
 
-config = DevSettings()
+def get_config(environment: str|None = None):
+    if environment is None:
+        load_dotenv(base_dir / ".env")
+        environment = os.getenv("environment")
+
+    match environment:
+        case "dev":
+            return DevSettings()
+        case "prod":
+            return ProdSettings()
+        case _:
+            raise ValueError
