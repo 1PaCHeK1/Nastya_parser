@@ -37,9 +37,6 @@ class Translate(BaseModel):
     from_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
     to_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
 
-# Привет -> Hello
-# Hi -> Привет
-# Привет -> Hello, Hi
 
 class FavoriteWord(BaseModel):
     __tablename__ = "favoriteword"
@@ -48,6 +45,7 @@ class FavoriteWord(BaseModel):
     word_id = Column(ForeignKey("words.id", ondelete="CASCADE"))
 
     user = relationship("User")
+
 
 class Post(BaseModel):
     __tablename__ = "post"
@@ -58,11 +56,13 @@ class Post(BaseModel):
     is_publish = Column(Boolean)
     publish_date = Column(DateTime)
 
+
 class Tag(BaseModel):
     __tablename__ = "tag"
 
     name = Column(String)
     rating = Column(Integer)
+
 
 class PostTags(BaseModel):
     __tablename__ = "posttags"

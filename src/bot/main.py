@@ -1,11 +1,33 @@
+import argparse
 from aiogram import executor, Dispatcher, types
+from aiogram.utils.executor import start_webhook
 
 from core.containers import Container
-
+from core.config import get_config
 from bot.commands import dp
 
 
+def arg_parse():
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument(
+        "--mode",
+        choices=[
+            "polling",
+            "webhook"
+        ],
+        default="polling",
+    )
+
+    return parser.parse_args()
+
+
 async def on_startup(dp:Dispatcher):
+    config, args = dp["config"], dp["args"]
+    if args.mode == "webhook":
+        dp.bot.set_webhook(
+            config.bot.webhook_path + config.bot.webhook_host
+        )
     await dp.bot.set_my_commands([
         types.BotCommand("start", "Запуск бота"),
         types.BotCommand("help", "Информация"),
@@ -23,10 +45,24 @@ async def on_startup(dp:Dispatcher):
 
 
 def main():
-    executor.start_polling(
-        dp, 
-        on_startup=on_startup,
-    )
+    args = arg_parse()
+    config = get_config()
+
+    dp["config"] = config
+    dp["args"] = args
+
+    if args.mode == "polling":
+        executor.start_polling(
+            dp, on_startup=on_startup
+        )
+    else:
+        start_webhook(
+            dp,
+            webhook_path=config.bot.webhook_path,
+            on_startup=on_startup,
+            host=config.bot.webapp_host,
+            port=config.bot.webapp_port,
+        )
 
 
 if __name__ == "__main__":
