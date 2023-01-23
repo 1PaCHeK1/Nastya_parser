@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime
 from core.database import Base
 
 
@@ -48,3 +48,24 @@ class FavoriteWord(BaseModel):
     word_id = Column(ForeignKey("words.id", ondelete="CASCADE"))
 
     user = relationship("User")
+
+class Post(BaseModel):
+    __tablename__ = "post"
+
+    title = Column(String)
+    body = Column(Text)
+    author_id = Column(ForeignKey("users.id", ondelete="CASCADE"))
+    is_publish = Column(Boolean)
+    publish_date = Column(DateTime)
+
+class Tag(BaseModel):
+    __tablename__ = "tag"
+
+    name = Column(String)
+    rating = Column(Integer)
+
+class PostTags(BaseModel):
+    __tablename__ = "posttags"
+
+    tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"))
+    post_id = Column(ForeignKey("post.id", ondelete="CASCADE"))
