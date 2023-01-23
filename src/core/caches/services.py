@@ -1,5 +1,5 @@
 import json
-import aioredis
+from redis import asyncio as aioredis
 from contextlib import asynccontextmanager
 from enum import Enum
 
@@ -38,12 +38,12 @@ class RedisService:
 
     @asynccontextmanager
     async def get_context(self, database: RedisDbEnum):
-        redis = aioredis.from_url(
+        _redis = aioredis.Redis.from_url(
             self.redis_url,
             db=database.value,
             decode_responses=True
         )
 
-        yield redis
+        yield _redis
 
-        await redis.close()
+        await _redis.close()

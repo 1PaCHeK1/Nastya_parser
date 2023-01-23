@@ -26,8 +26,8 @@ target_metadata = [
     Base.metadata
 ]
 
-from core.config import config as app_config
-config.set_main_option("sqlalchemy.url", app_config.database_connection_url)
+from core.config import get_config
+config.set_main_option("sqlalchemy.url", get_config().db_url)
 
 
 

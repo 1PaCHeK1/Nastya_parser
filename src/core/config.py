@@ -54,7 +54,7 @@ class ProdSettings(Settings):
 
     class Config:
         env_nested_delimiter = "."
-        env_file = base_dir / ".env.dev", base_dir / ".env.prod"
+        env_file = base_dir / ".env", base_dir / ".env.prod"
         env_file_encoding = "utf-8"
 
 
