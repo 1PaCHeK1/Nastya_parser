@@ -5,4 +5,3 @@ src/bot/core/local.py
 
 .ruff_cache
 .pdm.toml
-pdm.lock
