@@ -24,12 +24,17 @@ def arg_parse():
 
 async def on_startup(dp:Dispatcher):
     config, args = dp["config"], dp["args"]
+
     if args.mode == "webhook":
-        with open(config.cert_file_path, "rb") as cert_file:
+        webhook = await dp.bot.get_webhook_info()
+        if webhook.url != config.bot.webhook_path:
+            await dp.bot.delete_webhook()
+        with open(config.cert_file_path, 'rb') as cert_file:
             await dp.bot.set_webhook(
                 config.bot.webhook_host + config.bot.webhook_path,
                 certificate=cert_file,
             )
+            webhook = await dp.bot.get_webhook_info()
     await dp.bot.set_my_commands([
         types.BotCommand("start", "Запуск бота"),
         types.BotCommand("help", "Информация"),
