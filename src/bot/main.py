@@ -61,13 +61,13 @@ def main():
         executor.start_polling(
             dp,
             on_startup=on_startup,
-            on_shutdown=
         )
     else:
         start_webhook(
             dp,
             webhook_path=config.bot.webhook_path,
             on_startup=on_startup,
+            on_shutdown=on_shutdown,
             host=config.bot.webapp_host,
             port=config.bot.webapp_port,
         )
