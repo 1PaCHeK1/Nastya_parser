@@ -29,12 +29,9 @@ async def on_startup(dp:Dispatcher):
         webhook = await dp.bot.get_webhook_info()
         if webhook.url != config.bot.webhook_path:
             await dp.bot.delete_webhook()
-        with open(config.cert_file_path, 'rb') as cert_file:
-            await dp.bot.set_webhook(
-                config.bot.webhook_host + config.bot.webhook_path,
-                certificate=cert_file,
-            )
-            webhook = await dp.bot.get_webhook_info()
+        await dp.bot.set_webhook(
+            "https://" + config.bot.webhook_host + config.bot.webhook_path,
+        )
     await dp.bot.set_my_commands([
         types.BotCommand("start", "Запуск бота"),
         types.BotCommand("help", "Информация"),
@@ -74,10 +71,11 @@ def main():
         )
     else:
         start_webhook(
-            dp,
+            dispatcher=dp,
             webhook_path=config.bot.webhook_path,
             on_startup=on_startup,
             on_shutdown=on_shutdown,
+            skip_updates=True,
             host=config.bot.webapp_host,
             port=config.bot.webapp_port,
         )
