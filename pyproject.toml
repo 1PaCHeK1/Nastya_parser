@@ -10,7 +10,6 @@ dependencies = [
     "SQLAlchemy>=1.4.44",
     "psycopg2>=2.9.5",
     "pydantic>=1.10.2",
-    "aioredis>=2.0.1",
     "alembic>=1.8.1",
     "aiogram>=2.23.1",
     "setuptools>=65.6.3",

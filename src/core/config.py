@@ -4,8 +4,8 @@ from pathlib import Path
 from pydantic import BaseSettings
 
 from bot.core.config import (
-    BotSettings, 
-    DevBotSettings, 
+    BotSettings,
+    DevBotSettings,
     ProdBotSettings
 )
 
@@ -16,7 +16,7 @@ base_dir = Path(__file__).absolute().parent.parent
 class Settings(BaseSettings):
     app_name: str = "Parser"
     debug: bool
-    
+
     db_name: str
     db_host: str
     db_port: int
@@ -24,16 +24,18 @@ class Settings(BaseSettings):
     db_pass: str
     db_url: str
 
-    redis_host: str 
-    redis_port: int 
+    redis_host: str
+    redis_port: int
     redis_url: str
 
     bot: BotSettings
 
+    cert_file_path: str
+
 
 class DevSettings(Settings):
     debug: bool = True
-    
+
     db_name: str = "parser"
     db_host: str = "localhost"
     db_port: int = 6000
@@ -45,6 +47,8 @@ class DevSettings(Settings):
     redis_url: str = "redis://localhost:6379"
 
     bot: DevBotSettings = DevBotSettings()
+
+    cert_file_path: str = ""
 
 
 class ProdSettings(Settings):

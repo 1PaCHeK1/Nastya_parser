@@ -9,7 +9,7 @@ from bot.commands import dp
 
 def arg_parse():
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument(
         "--mode",
         choices=[
@@ -25,9 +25,11 @@ def arg_parse():
 async def on_startup(dp:Dispatcher):
     config, args = dp["config"], dp["args"]
     if args.mode == "webhook":
-        dp.bot.set_webhook(
-            config.bot.webhook_path + config.bot.webhook_host
-        )
+        with open(config.path, "rb") as cert_file:
+            await dp.bot.set_webhook(
+                config.bot.webhook_host + config.bot.webhook_path,
+                certificate=cert_file,
+            )
     await dp.bot.set_my_commands([
         types.BotCommand("start", "Запуск бота"),
         types.BotCommand("help", "Информация"),
@@ -35,7 +37,7 @@ async def on_startup(dp:Dispatcher):
         types.BotCommand("settings", "Настройки"),
         types.BotCommand("list", "Случайные слова"),
     ])
-    
+
     container = Container()
     container.init_resources()
     container.wire(packages=[
