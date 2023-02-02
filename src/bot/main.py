@@ -1,7 +1,7 @@
 import argparse
+import sentry_sdk
 from aiogram import executor, Dispatcher, types
 from aiogram.utils.executor import start_webhook
-import sentry_sdk
 from core.containers import Container
 from core.config import get_config
 from bot.commands import dp
@@ -59,8 +59,8 @@ def main():
     sentry_sdk.init(
         dsn="https://7a7685a757924dc7ad2d539e2a2aec78@o4504611526672384.ingest.sentry.io/4504611528638464",
         traces_sample_rate=1.0
-        )
-    
+    )
+
     args = arg_parse()
     config = get_config()
 

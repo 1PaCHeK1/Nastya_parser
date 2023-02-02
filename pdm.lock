@@ -29,16 +29,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aioredis"
-version = "2.0.1"
-requires_python = ">=3.6"
-summary = "asyncio (PEP 3156) Redis support"
-dependencies = [
-    "async-timeout",
-    "typing-extensions",
-]
-
-[[package]]
 name = "aiosignal"
 version = "1.3.1"
 requires_python = ">=3.7"
@@ -460,6 +450,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sentry-sdk"
+version = "1.14.0"
+summary = "Python client for Sentry (https://sentry.io)"
+dependencies = [
+    "certifi",
+    "urllib3>=1.26.11; python_version >= \"3.6\"",
+]
+
+[[package]]
 name = "service-identity"
 version = "21.1.0"
 summary = "Service identity verification for pyOpenSSL & cryptography."
@@ -576,7 +575,7 @@ dependencies = [
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:76f4f68dfa77b25aa59b3bd3cbd96c1a5f3045e6045632312206c8411412c56b"
+content_hash = "sha256:5d47a9f212a368a7906b88d38345562289b34183e5d6f930ff7a650ce9224016"
 
 [metadata.files]
 "aiogram 2.24" = [
@@ -671,10 +670,6 @@ content_hash = "sha256:76f4f68dfa77b25aa59b3bd3cbd96c1a5f3045e6045632312206c8411
     {url = "https://files.pythonhosted.org/packages/fc/ed/71128e72e10d7e2e6c111927fc75168804be7527cccc6fc1b2c05eb7cc1f/aiohttp-3.8.3-cp311-cp311-win32.whl", hash = "sha256:45d88b016c849d74ebc6f2b6e8bc17cabf26e7e40c0661ddd8fae4c00f015697"},
     {url = "https://files.pythonhosted.org/packages/fe/e1/401b3fac5bfaa8cef6d7fd541c8a573907565c662f2d5891cc9a0c0124b7/aiohttp-3.8.3-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:512bd5ab136b8dc0ffe3fdf2dfb0c4b4f49c8577f6cae55dca862cd37a4564e2"},
     {url = "https://files.pythonhosted.org/packages/ff/4f/62d9859b7d4e6dc32feda67815c5f5ab4421e6909e48cbc970b6a40d60b7/aiohttp-3.8.3.tar.gz", hash = "sha256:3828fb41b7203176b82fe5d699e0d845435f2374750a44b480ea6b930f6be269"},
-]
-"aioredis 2.0.1" = [
-    {url = "https://files.pythonhosted.org/packages/2e/cf/9eb144a0b05809ffc5d29045c4b51039000ea275bc1268d0351c9e7dfc06/aioredis-2.0.1.tar.gz", hash = "sha256:eaa51aaf993f2d71f54b70527c440437ba65340588afeb786cd87c55c89cd98e"},
-    {url = "https://files.pythonhosted.org/packages/9b/a9/0da089c3ae7a31cbcd2dcf0214f6f571e1295d292b6139e2bac68ec081d0/aioredis-2.0.1-py3-none-any.whl", hash = "sha256:9ac0d0b3b485d293b8ca1987e6de8658d7dafcca1cddfcd1d506cae8cdebfdd6"},
 ]
 "aiosignal 1.3.1" = [
     {url = "https://files.pythonhosted.org/packages/76/ac/a7305707cb852b7e16ff80eaf5692309bde30e2b1100a1fcacdc8f731d97/aiosignal-1.3.1-py3-none-any.whl", hash = "sha256:f8376fb07dd1e86a584e4fcdec80b36b7f81aac666ebc724e2c090300dd83b17"},
@@ -1525,6 +1520,10 @@ content_hash = "sha256:76f4f68dfa77b25aa59b3bd3cbd96c1a5f3045e6045632312206c8411
 "scrapy 2.7.1" = [
     {url = "https://files.pythonhosted.org/packages/00/34/9598461dfc319a2cda4c7eb8322f7f5c88979e9fc2a29385cec677b93af1/Scrapy-2.7.1-py2.py3-none-any.whl", hash = "sha256:ba5c99a0a6bc5d51708fb1919843cad650711d2baef3124e4ac3f2e1759f4ca6"},
     {url = "https://files.pythonhosted.org/packages/ad/c5/07f224b30c334daaea600c268c9fff855f110d72de4f47eb6204ef7d1008/Scrapy-2.7.1.tar.gz", hash = "sha256:30fa408353d24b1df979df2ea4afbd19b4ae02fb2207f218d246332f1e1cf14e"},
+]
+"sentry-sdk 1.14.0" = [
+    {url = "https://files.pythonhosted.org/packages/06/fa/cfc43276f3221006d861bf7e66d7361a47106121df65947fd3225793d845/sentry_sdk-1.14.0-py2.py3-none-any.whl", hash = "sha256:72c00322217d813cf493fe76590b23a757e063ff62fec59299f4af7201dd4448"},
+    {url = "https://files.pythonhosted.org/packages/d3/64/a5e0b77e834bec753927853accef256f86e0c2695ed5d16a2048fe790679/sentry-sdk-1.14.0.tar.gz", hash = "sha256:273fe05adf052b40fd19f6d4b9a5556316807246bd817e5e3482930730726bb0"},
 ]
 "service-identity 21.1.0" = [
     {url = "https://files.pythonhosted.org/packages/09/2e/26ade69944773df4748c19d3053e025b282f48de02aad84906d34a29d28b/service-identity-21.1.0.tar.gz", hash = "sha256:6e6c6086ca271dc11b033d17c3a8bea9f24ebff920c587da090afc9519419d34"},
