@@ -2,6 +2,6 @@ __pycache__
 
 src/bot/core/local.py
 .DS_Store
-
+.venv
 .ruff_cache
 .pdm.toml
