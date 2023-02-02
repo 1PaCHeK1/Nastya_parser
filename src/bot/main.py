@@ -25,7 +25,7 @@ def arg_parse():
 async def on_startup(dp:Dispatcher):
     config, args = dp["config"], dp["args"]
     if args.mode == "webhook":
-        with open(config.path, "rb") as cert_file:
+        with open(config.cert_file_path, "rb") as cert_file:
             await dp.bot.set_webhook(
                 config.bot.webhook_host + config.bot.webhook_path,
                 certificate=cert_file,
@@ -46,6 +46,10 @@ async def on_startup(dp:Dispatcher):
     ])
 
 
+async def on_shutdown(dp:Dispatcher):
+    await dp.bot.delete_webhook()
+
+
 def main():
     args = arg_parse()
     config = get_config()
@@ -55,7 +59,9 @@ def main():
 
     if args.mode == "polling":
         executor.start_polling(
-            dp, on_startup=on_startup
+            dp,
+            on_startup=on_startup,
+            on_shutdown=
         )
     else:
         start_webhook(
