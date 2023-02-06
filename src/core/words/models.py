@@ -5,7 +5,7 @@ from core.database import Base
 
 class BaseModel(Base):
     __abstract__ = True
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
 
 
@@ -40,7 +40,7 @@ class Translate(BaseModel):
 
 class FavoriteWord(BaseModel):
     __tablename__ = "favoriteword"
-    
+
     user_id = Column(ForeignKey("users.id", ondelete="CASCADE"))
     word_id = Column(ForeignKey("words.id", ondelete="CASCADE"))
 
@@ -79,10 +79,13 @@ class QuizQuestion(BaseModel):
     answer_one = Column(String)
     answer_two = Column(String)
     answer_three = Column(String)
-    answer_right = Column(Enum([1, 2, 3], default=1))
+    # answer_right = Column(Enum([1, 2, 3], default=1))
 
 
 class QuizTheme(BaseModel):
-    __tablename__ = "quizqtheme"
+    __tablename__ = "quiztheme"
 
     name = Column(String)
+
+# alembic revision --autogenerate
+# alembic upgrade head

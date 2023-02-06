@@ -70,6 +70,8 @@ def get_config(environment: str|None = None):
     match environment:
         case "dev":
             return DevSettings()
+        case "test":
+            return DevSettings()
         case "prod":
             return ProdSettings()
         case _:
