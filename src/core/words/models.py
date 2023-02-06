@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, Enum
 from core.database import Base
 
 
@@ -69,3 +69,20 @@ class PostTags(BaseModel):
 
     tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"))
     post_id = Column(ForeignKey("post.id", ondelete="CASCADE"))
+
+
+class QuizQuestion(BaseModel):
+    __tablename__ = "quizquestions"
+
+    question = Column(String)
+    theme_id = Column(ForeignKey('quiztheme.id', ondelete="CASCADE"))
+    answer_one = Column(String)
+    answer_two = Column(String)
+    answer_three = Column(String)
+    answer_right = Column(Enum([1, 2, 3], default=1))
+
+
+class QuizTheme(BaseModel):
+    __tablename__ = "quizqtheme"
+
+    name = Column(String)
