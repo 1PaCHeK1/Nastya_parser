@@ -1,8 +1,11 @@
+from contextlib import AbstractContextManager
+from typing import Callable
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from bot.utils.auth import identify_user
 from core.users.schemas import UserSchema
 from dependency_injector.wiring import Provide, inject
+from sqlalchemy.orm import Session
 
 from bot.keyboards.callback_enum import CallbakDataEnum
 from bot.core.dispatcher import dp
@@ -64,8 +67,11 @@ async def remove_favorite(data:types.callback_query.CallbackQuery):
 async def translate_word(
     message: types.Message,
     user: UserSchema,
-    word_service: WordService  = Provide[Container.word_service] 
+    word_service: WordService  = Provide[Container.word_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]    ,
 ):
-    words = await word_service.get_translate(user, message.text)
+    with get_session() as session:
+        words = await word_service.get_translate(user, message.text, session)
+
     words = ", ".join(words) or "Упс ничего не нашли"
     await message.reply(words, reply_markup=key_inline.add_favorite_keyboard)

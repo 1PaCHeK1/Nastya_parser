@@ -16,17 +16,14 @@ from core.words.models import Word, FavoriteWord, WordTranslate
 class WordService:
     def __init__(
         self,
-        database: Database,
         parser_service: TranslateWordService,
         cache_service: RedisService,
     ) -> None:
 
-        self.database = database
-        self.session: Callable[..., AbstractContextManager[Session]] = database.session
         self.parser_service = parser_service
         self.cache_service = cache_service
 
-    async def get_translate(self, user: UserSchema, word: str) -> list[str]:
+    async def get_translate(self, user: UserSchema, word: str, session: Session) -> list[str]:
         print("find in redis")
         translate_words = None and await self.cache_service.get_translate(user, word)
         if translate_words:
@@ -34,24 +31,23 @@ class WordService:
 
         print("find in database")
         TranslateWord = sa.orm.util.AliasedClass(Word)
-        with self.session() as session:
-            translate_words = (
-                session
-                .query(Word.text, TranslateWord.text.label("translate_word"))
-                .join(WordTranslate,
-                    (Word.id==WordTranslate.word_from_id) | (Word.id==WordTranslate.word_to_id)
-                )
-                .join(TranslateWord,
-                    ((TranslateWord.id==WordTranslate.word_from_id) & (Word.id==WordTranslate.word_to_id))
-                    | ((Word.id==WordTranslate.word_from_id) & (TranslateWord.id==WordTranslate.word_to_id))
-                )
-                .where(Word.text==word)
-                .all()
+        translate_words = (
+            session
+            .query(Word.text, TranslateWord.text.label("translate_word"))
+            .join(WordTranslate,
+                (Word.id==WordTranslate.word_from_id) | (Word.id==WordTranslate.word_to_id)
             )
-            translate_words = [
-                translate_word.translate_word
-                for translate_word in translate_words
-            ]
+            .join(TranslateWord,
+                ((TranslateWord.id==WordTranslate.word_from_id) & (Word.id==WordTranslate.word_to_id))
+                | ((Word.id==WordTranslate.word_from_id) & (TranslateWord.id==WordTranslate.word_to_id))
+            )
+            .where(Word.text==word)
+            .all()
+        )
+        translate_words = [
+            translate_word.translate_word
+            for translate_word in translate_words
+        ]
 
         if translate_words is None:
             print("find in site")

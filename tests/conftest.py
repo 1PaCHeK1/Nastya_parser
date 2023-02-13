@@ -1,13 +1,15 @@
+import pytest
 import os
+from sqlalchemy.orm import Session
+
 from core.config import Settings, get_config
 from core.containers import Container
 from core.users.schemas import UserCreateSchema, UserSchema
 from core.users.services import UserService
 from core.words.services import WordService
-import pytest
 
 
-# plugins_pytest = [ "db_conftest" ]
+from tests.db_conftest import *
 
 
 @pytest.fixture()
@@ -37,13 +39,14 @@ def user_service(container: Container) -> UserService:
 
 
 @pytest.fixture()
-async def user(user_service: UserService) -> UserSchema:
+async def user(session: Session, user_service: UserService) -> UserSchema:
     tg_id=648253536
     await user_service.create_user(
         UserCreateSchema(
             username="test user",
             email="example@gmail.com",
             tg_id=tg_id,
-        )
+        ),
+        session
     )
-    return await user_service.get_user_by_tg_id(tg_id)
+    return await user_service.get_user_by_tg_id(tg_id, session)

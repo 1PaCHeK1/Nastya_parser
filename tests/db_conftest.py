@@ -4,16 +4,15 @@ import asyncio
 import pathlib
 import pytest
 import sqlalchemy as sa
-
+import sqlalchemy_utils
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
 from typing import Iterable
 
 
-from sqlalchemy.engine import Connection
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
     create_async_engine,
-    # async_sessionmaker,
 )
 
 from alembic import command, config
@@ -50,7 +49,7 @@ def db_container(db_config: Settings) -> Container:
 
 @pytest.fixture(scope="session")
 def database_url(db_config: Settings) -> str:
-    return db_config.database_url
+    return db_config.db_url
 
 
 @pytest.fixture(scope="session")
@@ -59,61 +58,28 @@ def alembic_config() -> config.Config:
 
 
 @pytest.fixture(scope="session")
-def engine(database_url: str) -> AsyncEngine:
-    return create_async_engine(
-        database_url,
-        pool_use_lifo=True,
-        pool_size=20,
-    )
+def engine(database_url: str) -> Engine:
+    return create_engine(database_url)
 
 
 @pytest.fixture(scope="session")
 async def create_database(
     db_config: Settings,
 ) -> Iterable[None]:
-    database_url = f"postgresql+asyncpg://{db_config.db_user}:{db_config.db_password}@{db_config.db_host}:{db_config.db_port}/"  # noqa: E501
-    engine = create_async_engine(
-        database_url,
-        pool_use_lifo=True,
-        pool_size=20,
-        isolation_level="AUTOCOMMIT",
-    )
-    async with engine.connect() as conn:
-        database_exists = await conn.scalar(
-            sa.text(
-                f"SELECT datname FROM pg_database WHERE datname='{db_config.db_name}';"
-            )
-        )
-        if not database_exists:
-            await conn.execute(
-                sa.text(
-                    f"CREATE DATABASE {db_config.db_name} OWNER={db_config.db_user};"
-                )
-            )
+    database_url = f"postgresql://{db_config.db_user}:{db_config.db_pass}@{db_config.db_host}:{db_config.db_port}/{db_config.db_name}"  # noqa: E501
+
+    if not sqlalchemy_utils.database_exists(database_url):
+        sqlalchemy_utils.create_database(database_url)
 
     yield
 
-    async with engine.connect() as conn:
-        await conn.execute(
-            sa.text(
-                f"""
-                select pg_terminate_backend(pg_stat_activity.pid)
-                from pg_stat_activity
-                where pg_stat_activity.datname = '{db_config.db_name}'
-                and pid <> pg_backend_pid();
-                """,
-            ),
-        )
-
-        await conn.execute(
-            sa.text(f"DROP DATABASE IF EXISTS {db_config.db_name} WITH (FORCE);")
-        )
+    sqlalchemy_utils.drop_database(database_url)
 
 
 @pytest.fixture(scope="session")
-async def run_migrations(
+def run_migrations(
     create_database: None,
-    engine: AsyncEngine,
+    engine: Engine,
     alembic_config: config.Config,
     database_url: str,
 ) -> None:
@@ -121,27 +87,26 @@ async def run_migrations(
         cfg.attributes["connection"] = connection
         command.upgrade(cfg, revision="head")
 
-    async with engine.begin() as conn:
+    with engine.begin() as conn:
         alembic_config.set_main_option("sqlalchemy.url", database_url)
-        await conn.run_sync(run_upgrade, alembic_config)
-        await conn.commit()
+        conn.run_callable(run_upgrade, alembic_config)
 
 
 @pytest.fixture()
-async def session(
+def session(
     run_migrations: None,
-    engine: AsyncEngine,
-) -> AsyncSession:
-    async with engine.connect() as conn:
-        transaction = await conn.begin()
-        sessionmaker = async_sessionmaker(
+    engine: Engine,
+) -> Session:
+    with engine.connect() as conn:
+        transaction = conn.begin()
+        _sessionmaker = sessionmaker(
             autocommit=False,
             autoflush=False,
             bind=conn,
         )
 
-        async with sessionmaker() as session:
+        with _sessionmaker() as session:
             yield session
 
         if transaction.is_active:
-            await transaction.rollback()
+            transaction.rollback()

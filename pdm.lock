@@ -523,6 +523,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqlalchemy-utils"
+version = "0.40.0"
+requires_python = ">=3.6"
+summary = "Various utility functions for SQLAlchemy."
+dependencies = [
+    "SQLAlchemy>=1.3",
+]
+
+[[package]]
 name = "tldextract"
 version = "3.4.0"
 requires_python = ">=3.7"
@@ -600,7 +609,7 @@ dependencies = [
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:5d7d60294c78ebcb7e438e15254c39b4d71d9f33bea0f2cf860103aa957a9610"
+content_hash = "sha256:36b683ec93717a2b4638c344fd8ca872567370b42b80f31cc39b981b68983466"
 
 [metadata.files]
 "aiogram 2.24" = [
@@ -1620,6 +1629,10 @@ content_hash = "sha256:5d7d60294c78ebcb7e438e15254c39b4d71d9f33bea0f2cf860103aa9
     {url = "https://files.pythonhosted.org/packages/f7/74/de48d2c7875016fe507b9d1be76c901be22f03c64a985735c38e7e2612d7/SQLAlchemy-1.4.46-cp37-cp37m-win_amd64.whl", hash = "sha256:ae067ab639fa499f67ded52f5bc8e084f045d10b5ac7bb928ae4ca2b6c0429a5"},
     {url = "https://files.pythonhosted.org/packages/fc/87/b5df8c50302e0d5eaba079a8f9795c3491f4c7bec76a68b238c804408098/SQLAlchemy-1.4.46-cp27-cp27m-win32.whl", hash = "sha256:c04144a24103135ea0315d459431ac196fe96f55d3213bfd6d39d0247775c854"},
     {url = "https://files.pythonhosted.org/packages/fe/83/27efbfa73ca515d89ada6ab05d0d2739b5fafcfb0bf254df4ae8439441ec/SQLAlchemy-1.4.46-cp36-cp36m-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9883f5fae4fd8e3f875adc2add69f8b945625811689a6c65866a35ee9c0aea23"},
+]
+"sqlalchemy-utils 0.40.0" = [
+    {url = "https://files.pythonhosted.org/packages/99/12/73a5f6b2bd385361c7741d56b6a177b5661ac408050ee58ac133acb6c4ae/SQLAlchemy_Utils-0.40.0-py3-none-any.whl", hash = "sha256:4c7098d4857d5cad1248bf7cd940727aecb75b596a5574b86a93b37079929520"},
+    {url = "https://files.pythonhosted.org/packages/a4/aa/22ee247f7e2cf5e3fb5e90093263a0e48e28c0d00e95b4c59e09a9bc5863/SQLAlchemy-Utils-0.40.0.tar.gz", hash = "sha256:af803089a7929803faeb6173b90f29d1a67ad02f1d1e732f40b054a8eb3c7370"},
 ]
 "tldextract 3.4.0" = [
     {url = "https://files.pythonhosted.org/packages/40/0a/71c8f011b1528d2eb08867f7e6c6588f166cfc7f9e89521614206c3ccaee/tldextract-3.4.0-py3-none-any.whl", hash = "sha256:47aa4d8f1a4da79a44529c9a2ddc518663b25d371b805194ec5ce2a5f615ccd2"},

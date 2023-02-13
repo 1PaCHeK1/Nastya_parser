@@ -1,8 +1,11 @@
+from contextlib import AbstractContextManager
 import re
+from typing import Callable
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher import FSMContext
 from dependency_injector.wiring import Provide, inject
+from sqlalchemy.orm import Session
 
 from core.containers import Container
 from core.users.schemas import UserCreateSchema
@@ -15,13 +18,15 @@ from bot.states.registration import RegistrationState
 
 @inject
 async def start_registration(
-    message: types.Message, 
-    user_service: UserService = Provide[Container.user_service]
+    message: types.Message,
+    user_service: UserService = Provide[Container.user_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
 ):
 
     """Функция начала регистрации"""
-    if await user_service.check_user(message.from_id):
-        return await message.answer(texts.already_registered_text)
+    with get_session() as session:
+        if await user_service.check_user(message.from_id, session):
+            return await message.answer(texts.already_registered_text)
 
     await message.answer(texts.username_text)
     await RegistrationState.username.set()
@@ -29,7 +34,7 @@ async def start_registration(
 
 @dp.message_handler(Command("registration", ignore_case=True))
 async def registration_message(
-    message: types.Message, 
+    message: types.Message,
 ):
     await start_registration(message)
 
@@ -63,7 +68,7 @@ async def username_registration(message: types.Message, state: FSMContext):
 )
 @inject
 async def email_registration(
-    message: types.Message, 
+    message: types.Message,
     state: FSMContext,
     user_service: UserService = Provide[Container.user_service]
 ):
@@ -73,20 +78,24 @@ async def email_registration(
 @dp.message_handler(state=RegistrationState.email)
 @inject
 async def email_registration(
-    message: types.Message, 
+    message: types.Message,
     state: FSMContext,
-    user_service: UserService = Provide[Container.user_service],):
+    user_service: UserService = Provide[Container.user_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
+
+):
     async with state.proxy() as data:
         data["email"] = message.text
         result = data.as_dict()
-
-    await user_service.create_user(
-        UserCreateSchema(
-            username=result["username"],
-            email=result["email"],
-            tg_id=message.from_id,
+    with get_session() as session:
+        await user_service.create_user(
+            UserCreateSchema(
+                username=result["username"],
+                email=result["email"],
+                tg_id=message.from_id,
+            ),
+            session
         )
-    )
 
     await message.answer(texts.finish_registration_text)
     await state.finish()

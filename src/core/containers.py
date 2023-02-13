@@ -10,7 +10,7 @@ from .caches import services as cache_services
 
 
 class Container(containers.DeclarativeContainer):
-    
+
     config = providers.Configuration(pydantic_settings=[get_config()])
 
     database = providers.Singleton(
@@ -25,7 +25,6 @@ class Container(containers.DeclarativeContainer):
 
     user_service = providers.Factory(
         user_services.UserService,
-        session=database.provided.session,
     )
 
     _parser = providers.Container(
@@ -34,7 +33,6 @@ class Container(containers.DeclarativeContainer):
 
     word_service = providers.Factory(
         word_services.WordService,
-        database=database,
         parser_service=_parser.translate_service,
         cache_service=redis_service,
     )

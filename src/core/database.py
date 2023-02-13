@@ -37,19 +37,19 @@ class Database:
     def select_all(self, statement):
         with self.session() as session:
             return session.execute(statement).fetchone().all()
-            
+
 
     def select_one(self, statement):
         with self.session() as session:
             return session.execute(statement).one()
-    
+
     def select_first(self, statement):
         with self.session() as session:
             result = session.execute(statement).scalars()
             if result:
                 return result[0]
         return None
-    
+
     def select_scalar(self, statement):
         with self.session() as session:
             return session.execute(statement).scalar()
