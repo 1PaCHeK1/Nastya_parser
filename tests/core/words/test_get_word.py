@@ -8,7 +8,7 @@ async def test_get_word_from_db(
     word_service: WordService,
     user: UserSchema,
     word: WordCreateSchema,
-    session: Session
+    session: Session,
 ):
     translated_words = await word_service.get_translate(
         user=user,
@@ -16,7 +16,7 @@ async def test_get_word_from_db(
         session=session,
     )
 
-    assert sorted(translated_words) == sorted([w.lower() for w in word.translate_words])
+    assert sorted([w.lower() for w in translated_words]) == sorted([w.lower() for w in word.translate_words])
 
 
 async def test_get_word_from_cache():

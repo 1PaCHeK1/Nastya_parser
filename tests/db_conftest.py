@@ -20,6 +20,8 @@ from alembic import command, config
 from core.config import get_config, Settings
 from core.containers import Container
 
+from core.words.models import Language
+
 
 base_dir = pathlib.Path(__file__).resolve().parent.parent
 
@@ -92,8 +94,8 @@ def run_migrations(
         conn.run_callable(run_upgrade, alembic_config)
 
 
-@pytest.fixture()
-def session(
+@pytest.fixture(scope="session")
+def raw_session(
     run_migrations: None,
     engine: Engine,
 ) -> Session:
@@ -110,3 +112,24 @@ def session(
 
         if transaction.is_active:
             transaction.rollback()
+
+
+@pytest.fixture(scope="session")
+def load_database(
+    raw_session: Session,
+) -> None:
+    raw_session.add_all(
+        [
+            Language(name="ru", order=1),
+            Language(name="en", order=2),
+        ]
+    )
+    raw_session.flush()
+
+
+@pytest.fixture()
+def session(
+    raw_session: Session,
+    load_database: None
+) -> Session:
+    yield raw_session

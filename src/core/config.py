@@ -38,10 +38,10 @@ class DevSettings(Settings):
 
     db_name: str = "parser"
     db_host: str = "localhost"
-    db_port: int = 6000
-    db_user: str = "root"
-    db_pass: str = "root"
-    db_url: str = "postgresql://root:root@localhost:6000/parser"
+    db_port: int = 5432
+    db_user: str = "postgres"
+    db_pass: str = "postgres"
+    db_url: str = "postgresql://root:root@localhost:5432/parser"
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_url: str = "redis://localhost:6379"

@@ -67,8 +67,8 @@ async def remove_favorite(data:types.callback_query.CallbackQuery):
 async def translate_word(
     message: types.Message,
     user: UserSchema,
-    word_service: WordService  = Provide[Container.word_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]    ,
+    word_service: WordService = Provide[Container.word_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
 ):
     with get_session() as session:
         words = await word_service.get_translate(user, message.text, session)

@@ -15,6 +15,6 @@ services:
     image: redis
     restart: always
     ports:
-      - 6380:6379
+      - 6379:6379
     expose:
       - 6380

@@ -1,3 +1,4 @@
+import enum
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, Enum
 from core.database import Base
@@ -71,6 +72,12 @@ class PostTags(BaseModel):
     post_id = Column(ForeignKey("post.id", ondelete="CASCADE"))
 
 
+class RightAnswerEnum(int, enum.Enum):
+    answer_one = 1
+    answer_two = 2
+    answer_three = 3
+
+
 class QuizQuestion(BaseModel):
     __tablename__ = "quizquestions"
 
@@ -79,7 +86,7 @@ class QuizQuestion(BaseModel):
     answer_one = Column(String)
     answer_two = Column(String)
     answer_three = Column(String)
-    # answer_right = Column(Enum([1, 2, 3], default=1))
+    right_answer = Column(Enum(RightAnswerEnum, default=1, native_enum=False))
 
 
 class QuizTheme(BaseModel):
