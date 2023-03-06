@@ -36,3 +36,6 @@ class Container(containers.DeclarativeContainer):
         parser_service=_parser.translate_service,
         cache_service=redis_service,
     )
+    quize_service = providers.Factory(
+        word_services.QuizeService,
+    )

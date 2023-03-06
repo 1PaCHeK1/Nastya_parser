@@ -32,7 +32,7 @@ def required_login(f):
         if state is None:
             return await f(message, user=user)
         else:
-            return await f(message, state, user=user)
+            return await f(message, state=state, user=user)
 
     return wrapper
 
@@ -54,6 +54,6 @@ def identify_user(f):
         if state is None:
             return await f(message, user=user)
         else:
-            return await f(message, state, user=user)
+            return await f(message, state=state, user=user)
 
     return wrapper

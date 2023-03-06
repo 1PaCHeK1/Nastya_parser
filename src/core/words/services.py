@@ -1,11 +1,11 @@
-
+import random
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
 
 from pydantic import BaseModel
 from core.users.schemas import UserSchema
 from core.words.schemas import WordCreateSchema
-from core.words.models import Word, Language, Translate
+from core.words.models import Word, Language, Translate, QuizQuestion, QuizTheme
 from core.caches.services import RedisService
 from parsers.translate_word import TranslateWordService
 
@@ -111,19 +111,38 @@ class WordService:
 
 class QuizeFilter(BaseModel):
     user: UserSchema
-    theme_id: int
-    level: int
-    max_question: int
+    theme_id: int | None = None
+    level: int | None = None
+    max_question: int = 5
 
     def get_expression(self):
-        ...
+        expression = sa.true()
+        if self.theme_id is not None:
+            expression &= QuizQuestion.theme_id == self.theme_id
+        if self.level is not None:
+            ...
+
+        return expression
 
 
 class QuizeService:
-
     async def get_game(
         self,
+        user: UserSchema,
         session: Session,
         quize_filter: QuizeFilter | None = None,
-    ):
+    ) -> list[QuizQuestion]:
+        quize_filter = quize_filter or QuizeFilter(user=user)
         params = quize_filter.get_expression()
+        quizQuestions = list(session.query(QuizQuestion.id).where(params).all())
+        return (
+            session
+            .query(QuizQuestion)
+            .where(
+                QuizQuestion.id.in_(
+                    random.sample(quizQuestions, min(len(quizQuestions), quize_filter.max_question))[0]
+                )
+            ).all()
+        )
+
+
