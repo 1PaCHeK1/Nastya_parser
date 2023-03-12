@@ -11,6 +11,7 @@ from parsers.translate_word import TranslateWordService
 
 
 from core.words.models import Word, FavoriteWord, WordTranslate
+from core.users.models import User
 
 # redis -> database -> wooordhunt
 class WordService:
@@ -101,6 +102,28 @@ class WordService:
             )
             session.add(wordtranslate)
             session.flush()
+
+    async def add_favorite(self, word_text: str, user: UserSchema, session: Session):
+        word = session.query(Word).where(Word.text==word_text).first()
+        favoriteword = FavoriteWord(
+            user_id=user.id,
+            word_id=word.id
+        )
+        session.add(favoriteword)
+        session.commit()
+    
+    async def remove_favorite(self, word: str, user: UserSchema, session: Session):
+        word = session.query(Word).where(Word.text==word).first()
+        session.query(FavoriteWord).where(FavoriteWord.word_id==word.id, FavoriteWord.user_id==user.id).delete()
+        session.commit()
+
+    async def get_favorite(self, user: UserSchema, session: Session):
+        words = (session
+            .query(Word)
+            .join(FavoriteWord, (Word.id==FavoriteWord.word_id & FavoriteWord.user_id==user.id))
+            .all()
+        )
+        return [word.text for word in words]
 
 
 # SELECT words.id AS words_id, words.text AS words_text, words.language_id AS words_language_id, words_1.text AS "translateWord"

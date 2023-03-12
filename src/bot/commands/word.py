@@ -20,7 +20,8 @@ from core.words.services import WordService
 
 @dp.message_handler(Command("favorites"))
 async def get_favorites(message: types.Message):
-    await message.answer("Список избранных слов")
+    fav_words = get_list_favorite()
+    await message.answer("Список избранных слов:", ', '.join(fav_words))
 
 
 @dp.message_handler(Command("list"))
@@ -47,18 +48,45 @@ async def callback(data: types.callback_query.CallbackQuery):
             ...
 
 
-async def add_favorite(data:types.callback_query.CallbackQuery):
+@identify_user
+async def add_favorite(
+        data:types.callback_query.CallbackQuery,
+        user: UserSchema, 
+        word_service: WordService = Provide[Container.word_service],
+        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    ):
     word = data.message.reply_to_message.text
     translate = data.message.text
+    with get_session() as session:
+        word_service.add_favorite(word, user, session)
     await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
-async def remove_favorite(data:types.callback_query.CallbackQuery):
+@identify_user
+async def remove_favorite(
+        data:types.callback_query.CallbackQuery,
+        user: UserSchema, 
+        word_service: WordService = Provide[Container.word_service],
+        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    ):
     word = data.message.reply_to_message.text
     translate = data.message.text
+    with get_session() as session:
+        word_service.remove_favorite(word, user, session)
     await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
+
+
+@identify_user
+async def get_list_favorite(
+        user: UserSchema, 
+        word_service: WordService = Provide[Container.word_service],
+        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    ):
+    with get_session() as session:
+        favorite_words = word_service.get_favorite(user, session)
+    return favorite_words
 
 
 @dp.message_handler()
@@ -72,6 +100,8 @@ async def translate_word(
 ):
     with get_session() as session:
         words = await word_service.get_translate(user, message.text, session)
-
-    words = ", ".join(words) or "Упс ничего не нашли"
-    await message.reply(words, reply_markup=key_inline.add_favorite_keyboard)
+    if words:
+        words = ", ".join(words)
+        await message.reply(words, reply_markup=key_inline.add_favorite_keyboard)
+    else:
+        await message.reply("Упс ничего не нашли")

@@ -17,7 +17,6 @@ class Language(BaseModel):
     order = Column(Integer, default=1)
 
 
-
 class Word(BaseModel):
     __tablename__ = "words"
 
