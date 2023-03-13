@@ -9,7 +9,9 @@ from core.users.services import UserService
 from core.words.services import WordService
 
 
-from tests.db_conftest import *
+pytest_plugins = [
+    "tests.db_conftest"
+]
 
 
 @pytest.fixture()

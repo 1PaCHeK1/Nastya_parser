@@ -31,7 +31,11 @@ requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
 [tool.pdm.scripts]
-ruf = "pdm run ruff ./src"
+lint = {composite=[
+    "ruff src tests",
+    "mypy src tests",
+]}
+
 
 [tool.pdm]
 [tool.pdm.dev-dependencies]

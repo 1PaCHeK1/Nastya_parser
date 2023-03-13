@@ -2,7 +2,7 @@ from contextlib import AbstractContextManager
 from typing import Callable
 from aiogram import types
 from aiogram.dispatcher.filters import Command
-from bot.utils.auth import identify_user
+from bot.utils.auth import identify_user, required_login
 from core.users.schemas import UserSchema
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
@@ -19,9 +19,14 @@ from core.words.services import WordService
 
 
 @dp.message_handler(Command("favorites"))
-async def get_favorites(message: types.Message):
-    fav_words = get_list_favorite()
-    await message.answer("Список избранных слов:", ', '.join(fav_words))
+@required_login
+async def get_favorites(
+    message: types.Message,
+    user: UserSchema,
+):
+    fav_words = await get_list_favorite(user)
+    markup = key_inline.generate_favorite_keyboard(fav_words)
+    await message.answer(f"Список избранных слов", reply_markup=markup)
 
 
 @dp.message_handler(Command("list"))
@@ -50,11 +55,11 @@ async def callback(data: types.callback_query.CallbackQuery):
 
 @identify_user
 async def add_favorite(
-        data:types.callback_query.CallbackQuery,
-        user: UserSchema, 
-        word_service: WordService = Provide[Container.word_service],
-        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
-    ):
+    data:types.callback_query.CallbackQuery,
+    user: UserSchema,
+    word_service: WordService = Provide[Container.word_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+):
     word = data.message.reply_to_message.text
     translate = data.message.text
     with get_session() as session:
@@ -65,11 +70,11 @@ async def add_favorite(
 
 @identify_user
 async def remove_favorite(
-        data:types.callback_query.CallbackQuery,
-        user: UserSchema, 
-        word_service: WordService = Provide[Container.word_service],
-        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
-    ):
+    data:types.callback_query.CallbackQuery,
+    user: UserSchema,
+    word_service: WordService = Provide[Container.word_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+):
     word = data.message.reply_to_message.text
     translate = data.message.text
     with get_session() as session:
@@ -78,15 +83,14 @@ async def remove_favorite(
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
 
 
-@identify_user
+@inject
 async def get_list_favorite(
-        user: UserSchema, 
-        word_service: WordService = Provide[Container.word_service],
-        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
-    ):
+    user: UserSchema,
+    word_service: WordService = Provide[Container.word_service],
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+):
     with get_session() as session:
-        favorite_words = word_service.get_favorite(user, session)
-    return favorite_words
+        return await word_service.get_favorite(user, session)
 
 
 @dp.message_handler()
