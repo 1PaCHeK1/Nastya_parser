@@ -3,7 +3,7 @@ import os
 import asyncio
 import pathlib
 import pytest
-import sqlalchemy as sa
+
 import sqlalchemy_utils
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -11,9 +11,6 @@ from typing import Iterable
 
 
 from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-)
 
 from alembic import command, config
 

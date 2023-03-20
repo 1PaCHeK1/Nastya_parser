@@ -6,7 +6,9 @@ import bs4
 
 ReturnType = TypeVar("ReturnType")
 
-def async_to_sync(callable_function: Callable[[], Coroutine[Any, Any, ReturnType]]) -> ReturnType:
+def async_to_sync(
+    callable_function: Callable[[], Coroutine[Any, Any, ReturnType]]
+) -> ReturnType:  # type: ignore[return-value]
     loop = asyncio.get_event_loop()
     if loop.is_running():
         return loop.create_task(callable_function())
@@ -15,7 +17,7 @@ def async_to_sync(callable_function: Callable[[], Coroutine[Any, Any, ReturnType
 
 
 class TranslateWordService:
-    
+
     def __init__(self) -> None:
         self.session = aiohttp.ClientSession()
 
@@ -28,7 +30,7 @@ class TranslateWordService:
 
     async def __aexit__(self):
         await self.close()
-    
+
     def __del__(self):
         async_to_sync(self.close)
 
