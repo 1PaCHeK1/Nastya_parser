@@ -43,13 +43,14 @@ def identify_user(f):
     @wraps(f)
     @inject
     async def wrapper(
-        message: types.Message,
+        message: types.Message | types.CallbackQuery,
         state: FSMContext = None,
         user_service: UserService = Provide[Container.user_service],
         get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
     ):
+        user_id = message.from_user.id
         with get_session() as session:
-            user = await user_service.get_user_by_tg_id(message.from_id, session)
+            user = await user_service.get_user_by_tg_id(user_id, session)
 
         if state is None:
             return await f(message, user=user)

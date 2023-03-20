@@ -15,6 +15,8 @@ from core.users.models import User
 
 # redis -> database -> wooordhunt
 class WordService:
+    page_size: int = 2
+
     def __init__(
         self,
         parser_service: TranslateWordService,
@@ -117,11 +119,13 @@ class WordService:
         session.query(FavoriteWord).where(FavoriteWord.word_id==word.id, FavoriteWord.user_id==user.id).delete()
         session.commit()
 
-    async def get_favorite(self, user: UserSchema, session: Session) -> list[str]:
-        words = (
-            session
+    async def get_favorite(self, user: UserSchema, page_number: int, session: Session) -> list[Word]:
+        words = (session
             .query(Word)
             .join(FavoriteWord, (Word.id==FavoriteWord.word_id) & (FavoriteWord.user_id==user.id))
+            .order_by(FavoriteWord.id)
+            .offset(self.page_size*page_number)
+            .limit(self.page_size)
             .all()
         )
         return [word for word in words]

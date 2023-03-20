@@ -1,26 +1,40 @@
 from enum import Enum
 import json
-from dataclasses import dataclass, asdict
+from typing import Generic, TypeVar
 
+from pydantic import BaseModel, Field
+from pydantic.generics import GenericModel
+
+
+_T = TypeVar("_T")
 
 class CallbakDataEnum(str, Enum):
     favorites = "favorites"
-    favorite_word = "favorite-word"
+    translate_word = "favorite-word"
     save_favorite = "save-favorite"
+    next_page = "next-page"
+    prev_page = "prev-page"
+
     remove_favorite = "remove-favorite"
 
     registration = "registration"
 
+    noop = "noop"
 
-@dataclass
-class CallbackData:
+
+class PageNavigator(BaseModel):
+    page_number: int = 0
+
+
+class ObjectId(BaseModel):
+    id: int
+
+
+class Query(BaseModel):
+    text: str
+
+
+
+class CallbackData(GenericModel, Generic[_T]):
     enum: CallbakDataEnum
-    data: str|None = None
-
-    def to_json(self) -> str:
-        return json.dumps(asdict(self))
-
-    @classmethod
-    def from_json(cls, s: str) -> "CallbackData":
-        obj = json.loads(s)
-        return CallbackData(enum=obj["enum"], data=obj["data"])
+    data: _T = Field(default_factory=dict)
