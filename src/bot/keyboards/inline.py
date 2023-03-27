@@ -47,9 +47,9 @@ def generate_favorite_keyboard(favorite_words: list[Word], current_page: int = 0
         markup.add(
             types.InlineKeyboardButton(
                 word.text,
-                callback_data=CallbackData[Query](
+                callback_data=CallbackData[ObjectId](
                     enum=CallbakDataEnum.translate_word,
-                    data=Query(text=word.id),
+                    data=ObjectId(id=word.id),
                 ).json()
             )
         )
@@ -77,7 +77,7 @@ def generate_translate_keyboard(words: list[str]) -> types.InlineKeyboardMarkup:
     for word in words:
         markup.add(
             types.InlineKeyboardButton(
-                word.text,
+                word,
                 callback_data=CallbackData(
                     enum=CallbakDataEnum.noop,
                 ).json()

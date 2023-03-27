@@ -1,5 +1,6 @@
 import enum
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, Enum
 from core.database import Base
 
@@ -16,6 +17,8 @@ class Language(BaseModel):
     name = Column(String)
     order = Column(Integer, default=1)
 
+    words: list["Word"] = relationship("Word", back_populates="language")
+
 
 class Word(BaseModel):
     __tablename__ = "words"
@@ -23,12 +26,32 @@ class Word(BaseModel):
     text = Column(String)
     language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
 
+    language: Language = relationship(Language, back_populates="words")
+
+    translates_association = relationship(
+        "WordTranslate",
+        primaryjoin="foreign(WordTranslate.word_from_id) == Word.id",
+    )
+    # translates: list["Word"] = association_proxy(
+    #     "translates_association",
+    #     "word_to",
+    # )
+
 
 class WordTranslate(Base):
     __tablename__ = "wordtranslates"
 
     word_from_id: int = Column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
     word_to_id: int = Column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
+
+    word_from: Word = relationship(
+        Word,
+        primaryjoin="foreign(WordTranslate.word_from_id) == Word.id",
+    )
+    word_to: Word = relationship(
+        Word,
+        primaryjoin="foreign(WordTranslate.word_to_id) == Word.id",
+    )
 
 
 class Translate(BaseModel):

@@ -21,13 +21,19 @@ from core.words.services import WordService
 
 @inject
 async def get_translate(
-    text: str,
     user: UserSchema,
+    *,
+    text: str|None=None,
+    word_id:int|None=None,
     word_service: WordService = Provide[Container.word_service],
     get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
 ) -> list[str]:
     with get_session() as session:
-        return await word_service.get_translate(user, text, session)
+        if text is not None:
+            return await word_service.get_translate(user, text, session)
+        if word_id is not None:
+            return await word_service.get_translate_by_id(user, word_id, session)
+        raise ValueError
 
 
 @dp.message_handler(Command("favorites"))
@@ -74,10 +80,10 @@ async def callback(
             markup = key_inline.generate_favorite_keyboard(favorite_list, callback_data.data.page_number)
             await callback_info.message.edit_reply_markup(markup)
         case CallbakDataEnum.translate_word:
-            callback_data = CallbackData[Query].parse_obj(serialize_data)
+            callback_data = CallbackData[ObjectId].parse_obj(serialize_data)
             words = await get_translate(
-                callback_data.data.text,
-                user,
+                word_id=callback_data.data.id,
+                user=user,
             )
             print(words)
             markup = key_inline.generate_translate_keyboard(words)

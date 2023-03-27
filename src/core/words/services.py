@@ -1,6 +1,6 @@
 import random
 import sqlalchemy as sa
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, subqueryload, joinedload, eagerload
 
 from pydantic import BaseModel
 from core.users.schemas import UserSchema
@@ -26,7 +26,34 @@ class WordService:
         self.parser_service = parser_service
         self.cache_service = cache_service
 
-    async def get_translate(self, user: UserSchema, word: str, session: Session) -> list[str]:
+    async def get_translate_by_id(
+        self,
+        user: UserSchema,
+        word_id: int,
+        session: Session,
+    ) -> list[str]:
+        TranslateWord = sa.orm.util.AliasedClass(Word)
+        words = (
+            session
+            .query(Word.text, TranslateWord.text.label("translate_word"))
+            .join(WordTranslate,
+                (Word.id==WordTranslate.word_from_id) | (Word.id==WordTranslate.word_to_id)
+            )
+            .join(TranslateWord,
+                ((TranslateWord.id==WordTranslate.word_from_id) & (Word.id==WordTranslate.word_to_id))
+                | ((Word.id==WordTranslate.word_from_id) & (TranslateWord.id==WordTranslate.word_to_id))
+            )
+            .where(Word.id==word_id)
+            .all()
+        )
+        return [word.translate_word for word in words]
+
+    async def get_translate(
+        self,
+        user: UserSchema,
+        word: str,
+        session: Session,
+    ) -> list[str]:
         print("find in redis")
         translate_words = None and await self.cache_service.get_translate(user, word)
         if translate_words:
