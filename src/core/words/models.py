@@ -70,6 +70,13 @@ class FavoriteWord(BaseModel):
     user = relationship("User")
 
 
+class PostTags(BaseModel):
+    __tablename__ = "posttags"
+
+    tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"))
+    post_id = Column(ForeignKey("post.id", ondelete="CASCADE"))
+
+
 class Post(BaseModel):
     __tablename__ = "post"
 
@@ -79,6 +86,11 @@ class Post(BaseModel):
     is_publish = Column(Boolean)
     publish_date = Column(DateTime)
 
+    tags: list['Tag'] = relationship(
+        "Tag", 
+        secondary=PostTags, back_populates="posts"
+    )
+
 
 class Tag(BaseModel):
     __tablename__ = "tag"
@@ -86,12 +98,10 @@ class Tag(BaseModel):
     name = Column(String)
     rating = Column(Integer)
 
-
-class PostTags(BaseModel):
-    __tablename__ = "posttags"
-
-    tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"))
-    post_id = Column(ForeignKey("post.id", ondelete="CASCADE"))
+    posts: list[Post] = relationship(
+        "Post",
+        secondary=PostTags, back_populates="tags"
+    )
 
 
 class RightAnswerEnum(int, enum.Enum):
