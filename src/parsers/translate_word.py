@@ -5,6 +5,10 @@ import bs4
 import requests
 
 
+class TranslateNotFoundException(Exception):
+    ...
+
+
 ReturnType = TypeVar("ReturnType")
 
 def async_to_sync(
@@ -34,7 +38,8 @@ class TranslateWordService:
             translations = soup.find('div', class_="t_inline_en") or soup.find('p', class_="t_inline")
             if translations:
                 return translations.text.split(', ')
-        return None
+        # return []
+        raise TranslateNotFoundException
 
     async def __aexit__(self):
         await self.close()

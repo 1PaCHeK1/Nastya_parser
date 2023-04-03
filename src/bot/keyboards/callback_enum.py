@@ -14,7 +14,7 @@ class CallbakDataEnum(str, Enum):
     save_favorite = "save-favorite"
     next_page = "next-page"
     prev_page = "prev-page"
-
+    quize_answer = "quize-answer"
     remove_favorite = "remove-favorite"
 
     registration = "registration"

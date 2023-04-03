@@ -60,7 +60,7 @@ async def get_list_word(
     await message.answer(texts)
 
 
-@dp.callback_query_handler()
+# @dp.callback_query_handler(state=None)
 @identify_user
 async def callback(
     callback_info: types.callback_query.CallbackQuery,
@@ -91,6 +91,7 @@ async def callback(
 
 
 @identify_user
+@inject
 async def add_favorite(
     data:types.callback_query.CallbackQuery,
     user: UserSchema,
@@ -99,13 +100,15 @@ async def add_favorite(
 ):
     word = data.message.reply_to_message.text
     translate = data.message.text
+
     with get_session() as session:
-        word_service.add_favorite(word, user, session)
+        await word_service.add_favorite(word, user, session)
     await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
 @identify_user
+@inject
 async def remove_favorite(
     data:types.callback_query.CallbackQuery,
     user: UserSchema,
@@ -115,7 +118,7 @@ async def remove_favorite(
     word = data.message.reply_to_message.text
     translate = data.message.text
     with get_session() as session:
-        word_service.remove_favorite(word, user, session)
+        await word_service.remove_favorite(word, user, session)
     await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
 

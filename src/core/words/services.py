@@ -79,7 +79,7 @@ class WordService:
             for translate_word in translate_words
         ]
 
-        if translate_words is None:
+        if translate_words == []:
             print("find in site")
             translate_words = await self.parser_service.get_translate(word)
 
@@ -136,7 +136,7 @@ class WordService:
         word = session.query(Word).where(Word.text==word_text).first()
         favoriteword = FavoriteWord(
             user_id=user.id,
-            word_id=word.id
+            word_id=word.id,
         )
         session.add(favoriteword)
         session.flush()
@@ -190,6 +190,9 @@ class QuizeService:
         quize_filter = quize_filter or QuizeFilter(user=user)
         params = quize_filter.get_expression()
         quizQuestions = list(session.query(QuizQuestion.id).where(params).all())
+        if quizQuestions == []:
+            return []
+
         return (
             session
             .query(QuizQuestion)

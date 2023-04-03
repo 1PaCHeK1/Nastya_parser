@@ -70,11 +70,11 @@ class FavoriteWord(BaseModel):
     user = relationship("User")
 
 
-class PostTags(BaseModel):
+class PostTags(Base):
     __tablename__ = "posttags"
 
-    tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"))
-    post_id = Column(ForeignKey("post.id", ondelete="CASCADE"))
+    tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True)
+    post_id = Column(ForeignKey("post.id", ondelete="CASCADE"), primary_key=True)
 
 
 class Post(BaseModel):
@@ -87,8 +87,9 @@ class Post(BaseModel):
     publish_date = Column(DateTime)
 
     tags: list['Tag'] = relationship(
-        "Tag", 
-        secondary=PostTags, back_populates="posts"
+        "Tag",
+        secondary="posttags",
+        back_populates="posts",
     )
 
 
@@ -100,14 +101,15 @@ class Tag(BaseModel):
 
     posts: list[Post] = relationship(
         "Post",
-        secondary=PostTags, back_populates="tags"
+        secondary="posttags",
+        back_populates="tags",
     )
 
 
-class RightAnswerEnum(int, enum.Enum):
-    answer_one = 1
-    answer_two = 2
-    answer_three = 3
+class RightAnswerEnum(str, enum.Enum):
+    answer_one = "answer_one"
+    answer_two = "answer_two"
+    answer_three = "answer_three"
 
 
 class QuizQuestion(BaseModel):
@@ -118,7 +120,13 @@ class QuizQuestion(BaseModel):
     answer_one = Column(String)
     answer_two = Column(String)
     answer_three = Column(String)
-    right_answer = Column(Enum(RightAnswerEnum, default=1, native_enum=False))
+    right_answer = Column(
+        Enum(
+            RightAnswerEnum,
+            default=RightAnswerEnum.answer_one.value,
+            native_enum=False,
+        ),
+    )
 
 
 class QuizTheme(BaseModel):

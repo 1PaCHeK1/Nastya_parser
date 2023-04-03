@@ -14,11 +14,11 @@ class RedisDbEnum(int, Enum):
 class RedisService:
     def __init__(self, redis_url: str) -> None:
         self.redis_url = redis_url
-    
+
     async def get_translations(self, user_id) -> list[str]:
         async with self.get_context(RedisDbEnum.user_words_daily) as redis:
             return json.loads(await redis.get(user_id) or "[]")
-    
+
     async def get_translate(self, user: UserSchema, word) -> list[str]:
         async with self.get_context(RedisDbEnum.translate_words) as redis:
             translate_words = json.loads(await redis.get(word) or "[]")

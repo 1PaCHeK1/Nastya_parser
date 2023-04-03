@@ -1,7 +1,7 @@
 from aiogram import types
 from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, ObjectId, PageNavigator, Query
 from bot.core import texts
-from core.words.models import Word
+from core.words.models import QuizQuestion, RightAnswerEnum, Word
 
 
 add_favorite_keyboard = (
@@ -16,6 +16,7 @@ add_favorite_keyboard = (
     )
 )
 
+
 remove_favorite_keyboard = (
     types.InlineKeyboardMarkup()
     .add(
@@ -23,7 +24,7 @@ remove_favorite_keyboard = (
             texts.delete_from_favourites_text,
             callback_data=CallbackData(
                 enum=CallbakDataEnum.remove_favorite,
-            )
+            ).json()
         )
     )
 )
@@ -87,3 +88,22 @@ def generate_translate_keyboard(words: list[str]) -> types.InlineKeyboardMarkup:
 
 
 auth_start_keyboard = None
+
+
+def generate_question_keyboard(question: QuizQuestion):
+    markup = types.InlineKeyboardMarkup()
+    for word, enum in [
+        (question.answer_one, RightAnswerEnum.answer_one),
+        (question.answer_two, RightAnswerEnum.answer_two),
+        (question.answer_three, RightAnswerEnum.answer_three)
+    ]:
+        markup.add(
+            types.InlineKeyboardButton(
+                word,
+                callback_data=CallbackData(
+                    enum=CallbakDataEnum.quize_answer,
+                    data=Query(text=enum.value),
+                ).json(),
+            ),
+        )
+    return markup
