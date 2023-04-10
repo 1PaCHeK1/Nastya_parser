@@ -1,6 +1,4 @@
-from contextlib import AbstractContextManager
 import json
-import re
 from typing import Any, Callable
 from aiogram import types
 from aiogram.dispatcher.filters import Command
@@ -12,11 +10,10 @@ from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
 
 from core.containers import Container
-from core.users.schemas import UserCreateSchema, UserSchema
-from core.users.services import UserService
-from core.words.services import QuizeService, QuizeFilter
+from core.users.schemas import UserSchema
+from core.words.services import QuizeService
 from core.words.models import QuizQuestion
-from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, Query
+from bot.keyboards.callback_enum import CallbackData, Query
 from bot.core.dispatcher import dp
 
 

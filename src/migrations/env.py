@@ -7,7 +7,7 @@ from alembic import context
 
 from core.users.models import Base
 from core.words.models import Base
-from core.database import Base
+# from core.database import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -6,7 +6,6 @@
 
 # useful for handling different item types with a single interface
 from dependency_injector.wiring import inject, Provide
-from itemadapter import ItemAdapter
 
 from core.containers import Container
 from core.words.services import WordService

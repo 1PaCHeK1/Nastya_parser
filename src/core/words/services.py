@@ -1,17 +1,16 @@
 import random
 import sqlalchemy as sa
-from sqlalchemy.orm import Session, subqueryload, joinedload, eagerload
+from sqlalchemy.orm import Session
 
 from pydantic import BaseModel
 from core.users.schemas import UserSchema
 from core.words.schemas import WordCreateSchema
-from core.words.models import Word, Language, Translate, QuizQuestion, QuizTheme
+from core.words.models import Word, Language, QuizQuestion
 from core.caches.services import RedisService
 from parsers.translate_word import TranslateWordService
 
 
 from core.words.models import Word, FavoriteWord, WordTranslate
-from core.users.models import User
 
 # redis -> database -> wooordhunt
 class WordService:
@@ -95,7 +94,7 @@ class WordService:
 
     async def append_word(self, word: WordCreateSchema, session: Session) -> None:
         russian_alphabet = [chr(i) for i in range(ord("а"), ord("я")+1)]
-        english_alphabet = [chr(i) for i in range(ord("a"), ord("z")+1)]
+        [chr(i) for i in range(ord("a"), ord("z")+1)]
         # ru en
         language_code = (
             "ru"

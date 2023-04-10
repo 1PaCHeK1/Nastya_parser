@@ -1,4 +1,5 @@
 from core.users.schemas import UserSchema, UserCreateSchema, UserUpdateSchema
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from .models import User
 
@@ -7,7 +8,7 @@ class UserService:
     async def get_users(self, session: Session) -> list[UserSchema]:
         return list(map(UserSchema.from_orm, session.query(User).all()))
 
-    async def get_user(self, id, session: Session) -> UserSchema:
+    async def get_user(self, id: int, session: Session) -> UserSchema:
         user = (
             session
             .query(User)
@@ -17,12 +18,17 @@ class UserService:
         return UserSchema.from_orm(user)
 
     async def get_user_by_tg_id(self, tg_id: int, session: Session) -> UserSchema|None:
-        user = (
-            session
-            .query(User)
+        # SELECT * FROM users
+        user = session.scalar(
+            select(User)
             .where(User.tg_id==tg_id)
-            .first()
         )
+        # user = (
+        #     session
+        #     .query(User)
+        #     .where(User.tg_id==tg_id)
+        #     .first()
+        # )
         if user is not None:
             return UserSchema.from_orm(user)
 

@@ -1,23 +1,27 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from datetime import date
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, Date, Boolean
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from core.database import Base
+from core.database.types import str_128, int_pk
+
+if TYPE_CHECKING:
+    from core.words.models import Word
 
 
-class BaseModel(Base):
-    __abstract__ = True
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-
-class User(BaseModel):
+class User(Base):
     __tablename__ = "users"
-    
-    username = Column(String(length=128))
-    email = Column(String(length=128), unique=True)
-    tg_id = Column(Integer, unique=True)
-    create_at = Column(Date, default=date.today)
-    is_active = Column(Boolean, default=False)
 
-    favorite_words = relationship("FavoriteWord")
+    id: Mapped[int_pk]
+    username: Mapped[str_128|None]
+    email: Mapped[str_128|None] = mapped_column(unique=True)
+    tg_id: Mapped[int|None] = mapped_column(unique=True)
+    create_at: Mapped[date] = mapped_column(insert_default=date.today)
+    is_active: Mapped[bool] = mapped_column(insert_default=False)
+
+    favorite_words: Mapped[list[Word]] = relationship(
+        secondary="favoriteword",
+        back_populates="favorite_for_users",
+    )

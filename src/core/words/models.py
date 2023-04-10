@@ -1,36 +1,39 @@
+from __future__ import annotations
+from datetime import datetime
+
 import enum
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, DateTime, Enum
+from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy import ForeignKey, Enum
 from core.database import Base
+from core.database.types import int_pk, text
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.users.models import User
 
 
-class BaseModel(Base):
-    __abstract__ = True
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-
-class Language(BaseModel):
+class Language(Base):
     __tablename__ = "languages"
 
-    name = Column(String)
-    order = Column(Integer, default=1)
+    id: Mapped[int_pk]
+    name: Mapped[str]
+    order: Mapped[int] = mapped_column(default=1)
 
-    words: list["Word"] = relationship("Word", back_populates="language")
+    words: Mapped[list[Word]] = relationship(back_populates="language")
 
 
-class Word(BaseModel):
+class Word(Base):
     __tablename__ = "words"
 
-    text = Column(String)
-    language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
+    id: Mapped[int_pk]
+    text: Mapped[str]
+    language_id: Mapped[int] = mapped_column(ForeignKey("languages.id", ondelete="CASCADE"))
 
-    language: Language = relationship(Language, back_populates="words")
-
-    translates_association = relationship(
-        "WordTranslate",
-        primaryjoin="foreign(WordTranslate.word_from_id) == Word.id",
+    language: Mapped[Language] = relationship(Language, back_populates="words")
+    favorite_for_users: Mapped[list[User]] = relationship(
+        secondary="favoriteword",
+        back_populates="favorite_words",
     )
     # translates: list["Word"] = association_proxy(
     #     "translates_association",
@@ -41,66 +44,74 @@ class Word(BaseModel):
 class WordTranslate(Base):
     __tablename__ = "wordtranslates"
 
-    word_from_id: int = Column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
-    word_to_id: int = Column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
+    word_from_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
+    word_to_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
 
-    word_from: Word = relationship(
-        Word,
-        primaryjoin="foreign(WordTranslate.word_from_id) == Word.id",
-    )
-    word_to: Word = relationship(
-        Word,
-        primaryjoin="foreign(WordTranslate.word_to_id) == Word.id",
-    )
+    # word_from: Mapped[Word] = relationship(
+    #     Word,
+    #     primaryjoin="foreign(WordTranslate.word_from_id) == Word.id",
+    # )
+    # word_to: Mapped[Word] = relationship(
+    #     Word,
+    #     primaryjoin="foreign(WordTranslate.word_to_id) == Word.id",
+    # )
 
 
-class Translate(BaseModel):
+class Translate(Base):
     __tablename__ = "translates"
 
-    from_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
-    to_language_id = Column(ForeignKey("languages.id", ondelete="CASCADE"))
+    id: Mapped[int_pk]
+
+    from_language_id: Mapped[int] = mapped_column(ForeignKey("languages.id", ondelete="CASCADE"))
+    to_language_id: Mapped[int] = mapped_column(ForeignKey("languages.id", ondelete="CASCADE"))
 
 
-class FavoriteWord(BaseModel):
+class FavoriteWord(Base):
     __tablename__ = "favoriteword"
 
-    user_id = Column(ForeignKey("users.id", ondelete="CASCADE"))
-    word_id = Column(ForeignKey("words.id", ondelete="CASCADE"))
-
-    user = relationship("User")
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    word_id: Mapped[int] = mapped_column(
+        ForeignKey("words.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
 
 
 class PostTags(Base):
     __tablename__ = "posttags"
 
-    tag_id = Column(ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True)
-    post_id = Column(ForeignKey("post.id", ondelete="CASCADE"), primary_key=True)
+    tag_id: Mapped[int] = mapped_column(ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("post.id", ondelete="CASCADE"), primary_key=True)
 
 
-class Post(BaseModel):
+class Post(Base):
     __tablename__ = "post"
 
-    title = Column(String)
-    body = Column(Text)
-    author_id = Column(ForeignKey("users.id", ondelete="CASCADE"))
-    is_publish = Column(Boolean)
-    publish_date = Column(DateTime)
+    id: Mapped[int_pk]
 
-    tags: list['Tag'] = relationship(
-        "Tag",
+    title: Mapped[str]
+    body: Mapped[text]
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    is_publish: Mapped[bool]
+    publish_date: Mapped[datetime]
+
+    tags: Mapped[list[Tag]] = relationship(
         secondary="posttags",
         back_populates="posts",
     )
 
 
-class Tag(BaseModel):
+class Tag(Base):
     __tablename__ = "tag"
 
-    name = Column(String)
-    rating = Column(Integer)
+    id: Mapped[int_pk]
 
-    posts: list[Post] = relationship(
-        "Post",
+    name: Mapped[str]
+    rating: Mapped[int]
+
+    posts: Mapped[list[Post]] = relationship(
         secondary="posttags",
         back_populates="tags",
     )
@@ -112,15 +123,17 @@ class RightAnswerEnum(str, enum.Enum):
     answer_three = "answer_three"
 
 
-class QuizQuestion(BaseModel):
+class QuizQuestion(Base):
     __tablename__ = "quizquestions"
 
-    question = Column(String)
-    theme_id = Column(ForeignKey('quiztheme.id', ondelete="CASCADE"))
-    answer_one = Column(String)
-    answer_two = Column(String)
-    answer_three = Column(String)
-    right_answer = Column(
+    id: Mapped[int_pk]
+
+    question: Mapped[str]
+    theme_id: Mapped[int] = mapped_column(ForeignKey('quiztheme.id', ondelete="CASCADE"))
+    answer_one: Mapped[str]
+    answer_two: Mapped[str]
+    answer_three: Mapped[str]
+    right_answer: Mapped[RightAnswerEnum] = mapped_column(
         Enum(
             RightAnswerEnum,
             default=RightAnswerEnum.answer_one.value,
@@ -129,10 +142,12 @@ class QuizQuestion(BaseModel):
     )
 
 
-class QuizTheme(BaseModel):
+class QuizTheme(Base):
     __tablename__ = "quiztheme"
 
-    name = Column(String)
+    id: Mapped[int_pk]
+    name: Mapped[str]
+
 
 # alembic revision --autogenerate
 # alembic upgrade head

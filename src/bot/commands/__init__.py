@@ -3,4 +3,4 @@ from .other import dp
 from .quize import dp
 from .word import dp
 
-__all__ = [dp]
+__all__ = ["dp"]

@@ -1,12 +1,10 @@
 
 from contextlib import contextmanager, AbstractContextManager
 from typing import Callable
-import logging
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import declarative_base, Session
 
-logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -28,7 +26,6 @@ class Database:
         try:
             yield session
         except Exception:
-            logger.exception("Session rollback because of exception")
             session.rollback()
             raise
         finally:

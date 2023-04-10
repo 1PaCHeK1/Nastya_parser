@@ -1,5 +1,4 @@
 from enum import Enum
-import json
 from typing import Generic, TypeVar
 
 from pydantic import BaseModel, Field

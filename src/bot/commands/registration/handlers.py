@@ -15,21 +15,7 @@ from bot.core import texts
 from bot.core.dispatcher import dp
 from bot.states.registration import RegistrationState
 
-
-@inject
-async def start_registration(
-    message: types.Message,
-    user_service: UserService = Provide[Container.user_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
-):
-
-    """Функция начала регистрации"""
-    with get_session() as session:
-        if await user_service.check_user(message.from_id, session):
-            return await message.answer(texts.already_registered_text)
-
-    await message.answer(texts.username_text)
-    await RegistrationState.username.set()
+from .commands import start_registration
 
 
 @dp.message_handler(Command("registration", ignore_case=True))
@@ -38,10 +24,16 @@ async def registration_message(
 ):
     await start_registration(message)
 
+    await message.answer(texts.username_text)
+    await RegistrationState.username.set()
+
 
 @dp.callback_query_handler(lambda o: o.data == CallbakDataEnum.registration.value)
 async def registration_callback(data: types.callback_query.CallbackQuery):
     await start_registration(data.message)
+
+    await data.message.answer(texts.username_text)
+    await RegistrationState.username.set()
 
 
 @dp.message_handler(Command("cancel", ignore_case=True), state=[
@@ -81,8 +73,7 @@ async def email_registration(
     message: types.Message,
     state: FSMContext,
     user_service: UserService = Provide[Container.user_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
-
+    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
 ):
     async with state.proxy() as data:
         data["email"] = message.text
@@ -94,7 +85,7 @@ async def email_registration(
                 email=result["email"],
                 tg_id=message.from_id,
             ),
-            session
+            session,
         )
 
     await message.answer(texts.finish_registration_text)
