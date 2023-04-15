@@ -1,19 +1,17 @@
 from core.users.schemas import UserSchema, UserCreateSchema, UserUpdateSchema
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.orm import Session
 from .models import User
 
 
 class UserService:
     async def get_users(self, session: Session) -> list[UserSchema]:
-        return list(map(UserSchema.from_orm, session.query(User).all()))
+        return list(map(UserSchema.from_orm, session.scalars(select(User))))
 
     async def get_user(self, id: int, session: Session) -> UserSchema:
-        user = (
-            session
-            .query(User)
+        user = session.scalar(
+            select(User)
             .where(User.id==id)
-            .one()
         )
         return UserSchema.from_orm(user)
 
@@ -33,7 +31,7 @@ class UserService:
             return UserSchema.from_orm(user)
 
     async def check_user(self, tg_id:int, session: Session):
-        return bool(session.query(User.id).where(User.tg_id==tg_id).scalar())
+        return bool(session.scalar(select(User.id).where(User.tg_id==tg_id)))
 
     async def create_user(
         self,
