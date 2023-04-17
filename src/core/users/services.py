@@ -1,5 +1,5 @@
 from core.users.schemas import UserSchema, UserCreateSchema, UserUpdateSchema
-from sqlalchemy import select, insert
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from .models import User
 
@@ -38,7 +38,6 @@ class UserService:
         user: UserCreateSchema,
         session: Session,
     ) -> UserSchema:
-
         user = User(**user.dict())
         session.add(user)
         session.commit()

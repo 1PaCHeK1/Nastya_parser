@@ -1,10 +1,12 @@
 import argparse
 import sentry_sdk
-from aiogram import executor, Dispatcher, types
-from aiogram.utils.executor import start_webhook
+from aiogram import Dispatcher, types, Bot
+from aiogram.fsm.storage.memory import MemoryStorage
+
 from core.containers import Container
 from core.config import get_config
-from bot.commands import dp
+
+from bot.commands import registration_router, other_router
 
 
 def arg_parse():
@@ -22,22 +24,16 @@ def arg_parse():
     return parser.parse_args()
 
 
-async def on_startup(dp:Dispatcher):
-    config, args = dp["config"], dp["args"]
+async def on_startup(bot: Bot, dispatcher: Dispatcher):
+    print(bot, dispatcher)
+    config, args = dispatcher["config"], dispatcher["args"]
 
-    if args.mode == "webhook":
-        webhook = await dp.bot.get_webhook_info()
-        if webhook.url != config.bot.webhook_path:
-            await dp.bot.delete_webhook()
-        await dp.bot.set_webhook(
-            "https://" + config.bot.webhook_host + config.bot.webhook_path,
-        )
-    await dp.bot.set_my_commands([
-        types.BotCommand("start", "Запуск бота"),
-        types.BotCommand("help", "Информация"),
-        types.BotCommand("favorites", "Избранные"),
-        types.BotCommand("settings", "Настройки"),
-        types.BotCommand("list", "Случайные слова"),
+    await bot.set_my_commands([
+        types.BotCommand(command="start", description="Запуск бота"),
+        types.BotCommand(command="help", description="Информация"),
+        types.BotCommand(command="favorites", description="Избранные"),
+        types.BotCommand(command="settings", description="Настройки"),
+        types.BotCommand(command="list", description="Случайные слова"),
     ])
 
     container = Container()
@@ -57,7 +53,14 @@ def main():
         dsn="https://7a7685a757924dc7ad2d539e2a2aec78@o4504611526672384.ingest.sentry.io/4504611528638464",
         traces_sample_rate=1.0
     )
+    config = get_config()
 
+    bot = Bot(token=config.bot.api_token)
+    dp = Dispatcher(storage=MemoryStorage())
+    dp.include_routers(
+        registration_router,
+        other_router,
+    )
     args = arg_parse()
     config = get_config()
 
@@ -65,20 +68,19 @@ def main():
     dp["args"] = args
 
     if args.mode == "polling":
-        executor.start_polling(
-            dp,
-            on_startup=on_startup,
-        )
+        dp.startup.register(on_startup)
+        dp.run_polling(bot)
     else:
-        start_webhook(
-            dispatcher=dp,
-            webhook_path=config.bot.webhook_path,
-            on_startup=on_startup,
-            on_shutdown=on_shutdown,
-            skip_updates=True,
-            host=config.bot.webapp_host,
-            port=config.bot.webapp_port,
-        )
+        exit()
+        # start_webhook(
+        #     dispatcher=dp,
+        #     webhook_path=config.bot.webhook_path,
+        #     on_startup=on_startup,
+        #     on_shutdown=on_shutdown,
+        #     skip_updates=True,
+        #     host=config.bot.webapp_host,
+        #     port=config.bot.webapp_port,
+        # )
 
 
 if __name__ == "__main__":

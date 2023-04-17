@@ -14,10 +14,10 @@ async def start_registration(
     message: types.Message,
     user_service: UserService = Provide[Container.user_service],
     get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
-):
+) -> bool:
 
     """Функция начала регистрации"""
     with get_session() as session:
-        if await user_service.check_user(message.from_id, session):
-            return await message.answer(texts.already_registered_text)
-
+        if await user_service.check_user(message.from_user.id, session):
+            return False
+        return True

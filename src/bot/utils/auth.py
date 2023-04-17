@@ -1,7 +1,8 @@
 from contextlib import AbstractContextManager
-from typing import Callable
+from typing import Any, Callable
 from aiogram import types
-from aiogram.dispatcher import FSMContext
+from aiogram.filters import Filter
+from aiogram.fsm.context import FSMContext
 from functools import wraps
 from dependency_injector.wiring import Provide, inject
 
@@ -59,3 +60,43 @@ def identify_user(f):
             return await f(message, state=state, user=user)
 
     return wrapper
+
+
+class IdentifyUserFilter(Filter):
+    async def __call__(
+        self,
+        message: types.Message | types.CallbackQuery,
+        state: FSMContext = None,
+        user_service: UserService = Provide[Container.user_service],
+        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
+    ) -> dict[str, Any] | bool:
+
+        user_id = message.from_user.id
+        with get_session() as session:
+            user = await user_service.get_user_by_tg_id(user_id, session)
+
+        return {
+            "user": user,
+        }
+
+
+class RequiredUserFilter(Filter):
+    async def __call__(
+        self,
+        message: types.Message | types.CallbackQuery,
+        state: FSMContext = None,
+        user_service: UserService = Provide[Container.user_service],
+        get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session]
+    ) -> dict[str, Any] | bool:
+
+        user_id = message.from_user.id
+        with get_session() as session:
+            user = await user_service.get_user_by_tg_id(user_id, session)
+
+        if user is None:
+            await message.answer("Сначала нужно авторизоваться!")
+            return False
+
+        return {
+            "user": user,
+        }

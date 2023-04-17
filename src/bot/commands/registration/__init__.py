@@ -1,6 +1,6 @@
-from .handlers import dp
+from .handlers import router
 
 
 __all__ = [
-    "dp",
+    "router",
 ]

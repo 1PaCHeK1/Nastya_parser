@@ -1,8 +1,8 @@
 import json
 from typing import Any, Callable
-from aiogram import types
-from aiogram.dispatcher.filters import Command
-from aiogram.dispatcher import FSMContext
+from aiogram import Router, types
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 from bot.keyboards.inline import generate_question_keyboard
 from bot.utils.auth import required_login
 from pydantic import BaseModel, BaseConfig
@@ -14,7 +14,9 @@ from core.users.schemas import UserSchema
 from core.words.services import QuizeService
 from core.words.models import QuizQuestion
 from bot.keyboards.callback_enum import CallbackData, Query
-from bot.core.dispatcher import dp
+
+
+router = Router()
 
 
 class QuestionType(BaseModel):
@@ -46,7 +48,7 @@ async def send_question(
     )
 
 
-@dp.message_handler(Command("quize", ignore_case=True))
+@router.message(Command("quize", ignore_case=True))
 @required_login
 @inject
 async def start_game(
@@ -73,7 +75,7 @@ async def start_game(
         await send_question(message, quize_quest[0])
 
 
-@dp.callback_query_handler(state=["quize-game"])
+@router.callback_query()
 @required_login
 @inject
 async def send_answer(

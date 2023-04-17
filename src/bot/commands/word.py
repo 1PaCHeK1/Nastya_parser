@@ -1,15 +1,14 @@
 from contextlib import AbstractContextManager
 import json
 from typing import Callable
-from aiogram import types
-from aiogram.dispatcher.filters import Command
+from aiogram import types, Router
+from aiogram.filters import Command
 from bot.utils.auth import identify_user, required_login
 from core.users.schemas import UserSchema
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
 
 from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, ObjectId, PageNavigator, Query
-from bot.core.dispatcher import dp
 
 import bot.keyboards.inline as key_inline
 
@@ -17,6 +16,9 @@ import bot.keyboards.inline as key_inline
 from core.containers import Container
 from core.caches.services import RedisService
 from core.words.services import WordService
+
+
+router = Router()
 
 
 @inject
@@ -36,7 +38,7 @@ async def get_translate(
         raise ValueError
 
 
-@dp.message_handler(Command("favorites"))
+@router.message(Command("favorites"))
 @required_login
 async def get_favorites(
     message: types.Message,
@@ -47,7 +49,7 @@ async def get_favorites(
     await message.answer(f"Список избранных слов", reply_markup=markup)
 
 
-@dp.message_handler(Command("list"))
+@router.message(Command("list"))
 @inject
 async def get_list_word(
     message: types.Message,
@@ -60,7 +62,7 @@ async def get_list_word(
     await message.answer(texts)
 
 
-# @dp.callback_query_handler(state=None)
+@router.callback_query()
 @identify_user
 async def callback(
     callback_info: types.callback_query.CallbackQuery,
@@ -135,7 +137,7 @@ async def get_list_favorite(
     return favorite_words
 
 
-@dp.message_handler()
+@router.message()
 @identify_user
 @inject
 async def translate_word(

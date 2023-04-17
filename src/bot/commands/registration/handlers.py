@@ -1,34 +1,40 @@
 from contextlib import AbstractContextManager
 import re
 from typing import Callable
-from aiogram import types
-from aiogram.dispatcher.filters import Command
-from aiogram.dispatcher import FSMContext
+from aiogram import types, Router, F
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
 
 from core.containers import Container
 from core.users.schemas import UserCreateSchema
 from core.users.services import UserService
-from bot.keyboards.callback_enum import CallbakDataEnum
+from bot.keyboards.callback_enum import BaseData, CallbakDataEnum
 from bot.core import texts
-from bot.core.dispatcher import dp
+
 from bot.states.registration import RegistrationState
 
 from .commands import start_registration
 
+router = Router(name="registration-router")
 
-@dp.message_handler(Command("registration", ignore_case=True))
+
+@router.message(
+    Command("registration", ignore_case=True),
+)
 async def registration_message(
     message: types.Message,
 ):
-    await start_registration(message)
+    no_auth_user = await start_registration(message)
+    if no_auth_user:
+        await message.answer(texts.username_text)
+        await RegistrationState.username.set()
+    else:
+        await message.answer(texts.already_registered_text)
 
-    await message.answer(texts.username_text)
-    await RegistrationState.username.set()
 
-
-@dp.callback_query_handler(lambda o: o.data == CallbakDataEnum.registration.value)
+@router.callback_query(BaseData.filter(F.enum == CallbakDataEnum.registration.value))
 async def registration_callback(data: types.callback_query.CallbackQuery):
     await start_registration(data.message)
 
@@ -36,16 +42,17 @@ async def registration_callback(data: types.callback_query.CallbackQuery):
     await RegistrationState.username.set()
 
 
-@dp.message_handler(Command("cancel", ignore_case=True), state=[
-    RegistrationState.username,
-    RegistrationState.email,
-])
+@router.message(
+    Command("cancel", ignore_case=True),
+    # RegistrationState.username,
+    # RegistrationState.email,
+)
 async def cancel_registration(message: types.Message, state: FSMContext):
     await message.answer(texts.cancel_text)
     await state.finish()
 
 
-@dp.message_handler(state=RegistrationState.username)
+@router.message(RegistrationState.username)
 async def username_registration(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["username"] = message.text
@@ -53,10 +60,12 @@ async def username_registration(message: types.Message, state: FSMContext):
     await RegistrationState.email.set()
 
 
-@dp.message_handler(
-    lambda message: not re.match(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-    message.text),
-    state=RegistrationState.email
+@router.message(
+    lambda message: not re.match(
+        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+        message.text
+    ),
+    RegistrationState.email,
 )
 @inject
 async def email_registration(
@@ -67,7 +76,7 @@ async def email_registration(
     await message.reply(texts.invalid_registration_email_text)
 
 
-@dp.message_handler(state=RegistrationState.email)
+@router.message(RegistrationState.email)
 @inject
 async def email_registration(
     message: types.Message,
