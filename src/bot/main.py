@@ -6,7 +6,12 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from core.containers import Container
 from core.config import get_config
 
-from bot.commands import registration_router, other_router
+from bot.commands import (
+    registration_router,
+    other_router,
+    quize_router,
+    word_router,
+)
 
 
 def arg_parse():
@@ -60,6 +65,8 @@ def main():
     dp.include_routers(
         registration_router,
         other_router,
+        quize_router,
+        word_router,
     )
     args = arg_parse()
     config = get_config()

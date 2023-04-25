@@ -1,9 +1,9 @@
 from aiogram.filters.callback_data import CallbackData
 
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, BaseConfig
 from pydantic.generics import GenericModel
 
 
@@ -39,5 +39,15 @@ class Query(BaseModel):
 
 class BaseData(CallbackData, prefix="base"):
     enum: CallbakDataEnum
-    data: BaseModel | None = None
 
+
+class QueryCallBack(BaseData, prefix="query"):
+    data: str
+
+
+class IdentCallBack(BaseData, prefix="ident"):
+    data: int
+
+
+class NavigationCallback(BaseData, prefix="navigation"):
+    data: int

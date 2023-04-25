@@ -1,5 +1,5 @@
 from aiogram import types
-from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, ObjectId, PageNavigator, Query
+from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, IdentCallBack, NavigationCallback, ObjectId, PageNavigator, Query, QueryCallBack
 from bot.core import texts
 from core.words.models import QuizQuestion, RightAnswerEnum, Word
 
@@ -59,9 +59,9 @@ def generate_favorite_keyboard(favorite_words: list[Word], current_page: int = 0
         buttons.append(
             types.InlineKeyboardButton(
                 text=word.text,
-                callback_data=BaseData(
+                callback_data=IdentCallBack(
                     enum=CallbakDataEnum.translate_word,
-                    data=ObjectId(id=word.id),
+                    data=word.id,
                 ).pack()
             )
         )
@@ -69,16 +69,16 @@ def generate_favorite_keyboard(favorite_words: list[Word], current_page: int = 0
         (
             types.InlineKeyboardButton(
                 text="Назад",
-                callback_data=BaseData(
+                callback_data=NavigationCallback(
                     enum=CallbakDataEnum.prev_page,
-                    data=PageNavigator(page_number=current_page-1),
+                    data=current_page-1,
                 ).pack()
             ),
             types.InlineKeyboardButton(
                 text="Вперед",
-                callback_data=BaseData(
+                callback_data=NavigationCallback(
                     enum=CallbakDataEnum.next_page,
-                    data=PageNavigator(page_number=current_page+1),
+                    data=current_page+1,
                 ).pack()
             ),
         )
@@ -124,10 +124,10 @@ def generate_question_keyboard(question: QuizQuestion):
     ]:
         buttons.append(
             types.InlineKeyboardButton(
-                word,
-                callback_data=BaseData(
+                text=word,
+                callback_data=QueryCallBack(
                     enum=CallbakDataEnum.quize_answer,
-                    data=Query(text=enum.value),
+                    data=enum.value,
                 ).pack(),
             ),
         )
@@ -135,5 +135,20 @@ def generate_question_keyboard(question: QuizQuestion):
         inline_keyboard=[
             [button]
             for button in buttons
+        ]
+    )
+
+
+def generate_answer_keyboard(answer: str):
+    return types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=answer,
+                    callback_data=BaseData(
+                        enum=CallbakDataEnum.noop,
+                    ).pack(),
+                ),
+            ]
         ]
     )

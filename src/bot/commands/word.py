@@ -3,7 +3,7 @@ import json
 from typing import Callable
 from aiogram import types, Router
 from aiogram.filters import Command
-from bot.utils.auth import identify_user, required_login
+from bot.utils.auth import IdentifyUserFilter, RequiredUserFilter
 from core.users.schemas import UserSchema
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
@@ -38,8 +38,7 @@ async def get_translate(
         raise ValueError
 
 
-@router.message(Command("favorites"))
-@required_login
+@router.message(Command("favorites"), RequiredUserFilter())
 async def get_favorites(
     message: types.Message,
     user: UserSchema,
@@ -62,8 +61,7 @@ async def get_list_word(
     await message.answer(texts)
 
 
-@router.callback_query()
-@identify_user
+@router.callback_query(IdentifyUserFilter())
 async def callback(
     callback_info: types.callback_query.CallbackQuery,
     user: UserSchema,
@@ -73,9 +71,9 @@ async def callback(
     callback_data = CallbackData[dict].parse_obj(serialize_data)
     match CallbakDataEnum(callback_data.enum):  # noqa: E999
         case CallbakDataEnum.save_favorite:
-            await add_favorite(callback_info)
+            await add_favorite(callback_info, user)
         case CallbakDataEnum.remove_favorite:
-            await remove_favorite(callback_info)
+            await remove_favorite(callback_info, user)
         case CallbakDataEnum.next_page | CallbakDataEnum.prev_page:
             callback_data = CallbackData[PageNavigator].parse_obj(serialize_data)
             favorite_list = await get_list_favorite(user, callback_data.data.page_number)
@@ -87,12 +85,10 @@ async def callback(
                 word_id=callback_data.data.id,
                 user=user,
             )
-            print(words)
             markup = key_inline.generate_translate_keyboard(words)
             await callback_info.message.edit_reply_markup(markup)
 
 
-@identify_user
 @inject
 async def add_favorite(
     data:types.callback_query.CallbackQuery,
@@ -109,7 +105,6 @@ async def add_favorite(
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
-@identify_user
 @inject
 async def remove_favorite(
     data:types.callback_query.CallbackQuery,
@@ -137,8 +132,7 @@ async def get_list_favorite(
     return favorite_words
 
 
-@router.message()
-@identify_user
+@router.message(IdentifyUserFilter())
 @inject
 async def translate_word(
     message: types.Message,

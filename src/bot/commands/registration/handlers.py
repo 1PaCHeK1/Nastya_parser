@@ -34,7 +34,7 @@ async def registration_message(
         await message.answer(texts.already_registered_text)
 
 
-@router.callback_query(BaseData.filter(F.enum == CallbakDataEnum.registration.value))
+@router.callback_query( BaseData.filter(F.enum == CallbakDataEnum.registration.value))
 async def registration_callback(data: types.callback_query.CallbackQuery):
     await start_registration(data.message)
 

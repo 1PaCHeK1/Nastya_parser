@@ -1,5 +1,6 @@
 import random
 import sqlalchemy as sa
+from collections.abc import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 from pydantic import BaseModel
@@ -176,20 +177,17 @@ class QuizeService:
         user: UserSchema,
         session: Session,
         quize_filter: QuizeFilter | None = None,
-    ) -> list[QuizQuestion]:
+    ) -> Sequence[QuizQuestion]:
         quize_filter = quize_filter or QuizeFilter(user=user)
         params = quize_filter.get_expression()
         quizQuestions = list(session.query(QuizQuestion.id).where(params).all())
         if quizQuestions == []:
             return []
+        selected_games = random.sample(quizQuestions, min(len(quizQuestions), quize_filter.max_question))
 
-        return session.scalars(
-            select(QuizQuestion)
-            .where(
-                QuizQuestion.id.in_(
-                    random.sample(quizQuestions, min(len(quizQuestions), quize_filter.max_question))[0]
-                )
+        return (
+            session.scalars(
+                select(QuizQuestion)
+                .where(QuizQuestion.id.in_([i.id for i in selected_games]))
             )
-        )
-
-
+        ).all()

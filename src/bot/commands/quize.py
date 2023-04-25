@@ -1,41 +1,23 @@
 import json
-from typing import Any, Callable
-from aiogram import Router, types
+from typing import Callable
+from aiogram import Router, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from bot.keyboards.inline import generate_question_keyboard
-from bot.utils.auth import required_login
-from pydantic import BaseModel, BaseConfig
+from bot.keyboards.inline import generate_answer_keyboard, generate_question_keyboard
+from bot.utils.auth import RequiredUserFilter
+from core.words.schemas import QuestionType
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
+from aiogram.methods import EditMessageReplyMarkup
 
 from core.containers import Container
 from core.users.schemas import UserSchema
 from core.words.services import QuizeService
 from core.words.models import QuizQuestion
-from bot.keyboards.callback_enum import CallbackData, Query
+from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, QueryCallBack
 
 
 router = Router()
-
-
-class QuestionType(BaseModel):
-    question: str
-    answer_one: str
-    answer_two: str
-    answer_three: str
-    right_answer: str
-
-    class Config(BaseConfig):
-        orm_mode = True
-
-    @classmethod
-    def from_orm_list(cls, objs: list[Any]) -> list["QuestionType"]:
-        return [QuestionType.from_orm(obj) for obj in objs]
-
-    @classmethod
-    def parse_obj_list(cls, objs: list[Any]) -> list["QuestionType"]:
-        return [QuestionType.parse_obj(obj) for obj in objs]
 
 
 async def send_question(
@@ -48,8 +30,10 @@ async def send_question(
     )
 
 
-@router.message(Command("quize", ignore_case=True))
-@required_login
+@router.message(
+    Command("quize", ignore_case=True),
+    RequiredUserFilter(),
+)
 @inject
 async def start_game(
     message: types.Message,
@@ -75,8 +59,9 @@ async def start_game(
         await send_question(message, quize_quest[0])
 
 
-@router.callback_query()
-@required_login
+@router.callback_query(
+    RequiredUserFilter(),
+)
 @inject
 async def send_answer(
     query: types.CallbackQuery,
@@ -85,8 +70,13 @@ async def send_answer(
 ) -> None:
 
     data = await state.get_data()
-    query_data = CallbackData[Query].parse_obj(json.loads(query.data))
-    data["answers"].append(query_data.data.text)
+    query_data = QueryCallBack.unpack(query.data)
+    data["answers"].append(query_data.data)
+    await EditMessageReplyMarkup(
+        chat_id=query.message.chat.id,
+        message_id=query.message.message_id,
+        reply_markup=generate_answer_keyboard("Ответ засчитан!")
+    )
     if len(data["questions"]) > data["position"] + 1:
         next_question = QuestionType.parse_obj(data["questions"][data["position"] + 1])
         await send_question(query.message, next_question)
@@ -102,4 +92,4 @@ async def send_answer(
         for question, answer in zip(data["questions"], data["answers"]):
             score += question["right_answer"] == answer
         await query.message.answer(f"Ты набрал {score} очков!")
-        await state.finish()
+        await state.clear()
