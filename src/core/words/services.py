@@ -166,8 +166,8 @@ class QuizeFilter(BaseModel):
         if self.theme_id is not None:
             expression &= QuizQuestion.theme_id == self.theme_id
         if self.level is not None:
-            ...
-
+            expression &= QuizQuestion.level == self.level
+        expression &= QuizQuestion.max_question == self.max_question
         return expression
 
 

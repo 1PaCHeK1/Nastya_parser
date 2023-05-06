@@ -2,6 +2,7 @@ import json
 from typing import Callable
 from aiogram import Router, types, F
 from aiogram.filters import Command
+from aiogram.filters import CommandObject
 from aiogram.fsm.context import FSMContext
 from bot.keyboards.inline import generate_answer_keyboard, generate_question_keyboard
 from bot.utils.auth import RequiredUserFilter
@@ -9,11 +10,12 @@ from core.words.schemas import QuestionType
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
 from aiogram.methods import EditMessageReplyMarkup
+from sqlalchemy import update, select
 
 from core.containers import Container
 from core.users.schemas import UserSchema
-from core.words.services import QuizeService
-from core.words.models import QuizQuestion
+from core.words.services import QuizeService, QuizeFilter
+from core.words.models import QuizQuestion, QuizTheme
 from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, QueryCallBack
 
 
@@ -31,6 +33,89 @@ async def send_question(
 
 
 @router.message(
+    Command("get_game_settings", ignore_case=True),
+    RequiredUserFilter(),
+)
+@inject
+async def get_game_settings(
+    message: types.Message,
+    user: UserSchema,
+    get_session: Callable[[], Session] = Provide[Container.database.provided.session],
+):  
+    with get_session() as session:
+        q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
+        if not q_filter:
+            q_filter = QuizeFilter(user=user)
+            session.add(q_filter)
+            session.flush()
+        if q_filter.theme_id:
+            theme = session.scalar(select(QuizTheme).where(QuizTheme.id==q_filter.theme_id))
+            await message.answer("Тема:" + str(theme.name))
+        else:
+            await message.answer("Тема не выбрана")
+        if q_filter.level:
+            await message.answer("Уровень: " + str(q_filter.level))
+        else:
+            await message.answer("Уровень не выбран")
+        await message.answer("Максимальное количество вопросов: " + str(q_filter.max_question))
+
+
+@router.message(
+    Command("change_maximum_quantity_of_questions", ignore_case=True),
+    RequiredUserFilter(),
+)
+@inject
+async def change_maximum_quantity_of_questions(
+    message: types.Message,
+    user: UserSchema,
+    get_session: Callable[[], Session] = Provide[Container.database.provided.session],
+):  
+    with get_session() as session:
+        q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
+        if not q_filter:
+            q_filter = QuizeFilter(user=user)
+            session.add(q_filter)
+            session.flush()
+
+        if len(message.text.split()) != 2:
+            await message.answer("Комманда введена неправильно, напишите /change_maximum_quantity_of_questions <кол-во вопросов>")
+        else:
+            try:
+                stmt = update(QuizeFilter).where(QuizeFilter.user.id==user.id).values(max_question=int(message.text.split()[1]))
+                await message.answer('Теперь максимальное количество вопросов равно ' + message.text.split()[1])
+            except:
+                await message.answer('Проверьте правильность ввода команды')
+
+
+@router.message(
+    Command("change_theme", ignore_case=True),
+    RequiredUserFilter(),
+)
+@inject
+async def change_theme(
+    message: types.Message,
+    user: UserSchema,
+    get_session: Callable[[], Session] = Provide[Container.database.provided.session],
+):  
+    with get_session() as session:
+        q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
+        if not q_filter:
+            q_filter = QuizeFilter(user=user)
+            session.add(q_filter)
+            session.flush()
+
+        if len(message.text.split()) != 2:
+            await message.answer("Комманда введена неправильно, напишите /change_theme <тема>")
+        else:
+            try:
+                theme = session.scalar(select(QuizTheme).where(QuizTheme.name==message.text.split()[1]))
+                stmt = update(QuizeFilter).where(QuizeFilter.user.id==user.id).values(theme_id=theme.id)
+                await message.answer('Теперь тема - ' + theme.name)
+            except:
+                await message.answer('Комманда введена неправильно или такой темы не существует')
+
+
+@router.message(
     Command("quize", ignore_case=True),
     RequiredUserFilter(),
 )
@@ -41,7 +126,7 @@ async def start_game(
     state: FSMContext,
     get_session: Callable[[], Session] = Provide[Container.database.provided.session],
     quize_service: QuizeService = Provide[Container.quize_service],
-) -> None:
+):
     with get_session() as session:
         quize_quest = await quize_service.get_game(user, session)
         if len(quize_quest) == 0:
