@@ -11,6 +11,7 @@ from bot.commands import (
     other_router,
     quize_router,
     word_router,
+    image_router,
 )
 
 
@@ -66,6 +67,7 @@ def main():
         registration_router,
         other_router,
         quize_router,
+        image_router,
         word_router,
     )
     args = arg_parse()

@@ -7,7 +7,7 @@ from .database import Database
 from .users import services as user_services
 from .words import services as word_services
 from .caches import services as cache_services
-
+from .image import services as image_services
 
 class Container(containers.DeclarativeContainer):
 
@@ -30,7 +30,9 @@ class Container(containers.DeclarativeContainer):
     _parser = providers.Container(
         ParserContainer
     )
-
+    image_process = providers.Factory(
+        image_services.ImageProcessService,
+    )
     word_service = providers.Factory(
         word_services.WordService,
         parser_service=_parser.translate_service,

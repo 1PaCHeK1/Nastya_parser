@@ -63,7 +63,7 @@ async def username_registration(message: types.Message, state: FSMContext):
 @router.message(
     lambda message: not re.match(
         r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-        message.text
+        str(message.text),
     ),
     RegistrationState.email,
 )

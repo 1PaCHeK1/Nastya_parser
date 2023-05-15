@@ -41,7 +41,7 @@ async def get_game_settings(
     message: types.Message,
     user: UserSchema,
     get_session: Callable[[], Session] = Provide[Container.database.provided.session],
-):  
+):
     with get_session() as session:
         q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
         if not q_filter:
@@ -69,7 +69,7 @@ async def change_maximum_quantity_of_questions(
     message: types.Message,
     user: UserSchema,
     get_session: Callable[[], Session] = Provide[Container.database.provided.session],
-):  
+):
     with get_session() as session:
         q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
         if not q_filter:
@@ -96,7 +96,7 @@ async def change_theme(
     message: types.Message,
     user: UserSchema,
     get_session: Callable[[], Session] = Provide[Container.database.provided.session],
-):  
+):
     with get_session() as session:
         q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
         if not q_filter:
@@ -110,6 +110,7 @@ async def change_theme(
             try:
                 theme = session.scalar(select(QuizTheme).where(QuizTheme.name==message.text.split()[1]))
                 stmt = update(QuizeFilter).where(QuizeFilter.user.id==user.id).values(theme_id=theme.id)
+                session.execute(stmt)
                 await message.answer('Теперь тема - ' + theme.name)
             except:
                 await message.answer('Комманда введена неправильно или такой темы не существует')
@@ -129,19 +130,20 @@ async def start_game(
 ):
     with get_session() as session:
         quize_quest = await quize_service.get_game(user, session)
-        if len(quize_quest) == 0:
-            return
 
-        await state.set_state("quize-game")
-        serialize_data = [obj for obj in QuestionType.from_orm_list(quize_quest)]
-        await state.set_data(
-            {
-                "position": 0,
-                "questions": list(map(QuestionType.dict, serialize_data)),
-                "answers": [],
-            }
-        )
-        await send_question(message, quize_quest[0])
+    if len(quize_quest) == 0:
+        return
+
+    await state.set_state("quize-game")
+    serialize_data = [obj for obj in QuestionType.from_orm_list(quize_quest)]
+    await state.set_data(
+        {
+            "position": 0,
+            "questions": list(map(QuestionType.dict, serialize_data)),
+            "answers": [],
+        }
+    )
+    await send_question(message, quize_quest[0])
 
 
 @router.callback_query(
