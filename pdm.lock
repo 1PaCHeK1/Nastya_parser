@@ -261,6 +261,14 @@ requires_python = ">=3.7"
 summary = "JSON Matching Expressions"
 
 [[package]]
+name = "langid"
+version = "1.1.6"
+summary = "langid.py is a standalone Language Identification (LangID) tool."
+dependencies = [
+    "numpy",
+]
+
+[[package]]
 name = "lazy-loader"
 version = "0.2"
 requires_python = ">=3.7"
@@ -807,7 +815,7 @@ dependencies = [
 lock_version = "4.2"
 cross_platform = true
 groups = ["default", "dev"]
-content_hash = "sha256:f5367fcf33525aa686ae9bf4763706dfa58ccbf547fd938c19d7eaafc40ba602"
+content_hash = "sha256:777cc912f6d0f642eb2ab94a287992cf5888a5bcfbbb8c15cf9ad4ce0efa2140"
 
 [metadata.files]
 "aiofiles 23.1.0" = [
@@ -1302,6 +1310,9 @@ content_hash = "sha256:f5367fcf33525aa686ae9bf4763706dfa58ccbf547fd938c19d7eaafc
 "jmespath 1.0.1" = [
     {url = "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
     {url = "https://files.pythonhosted.org/packages/31/b4/b9b800c45527aadd64d5b442f9b932b00648617eb5d63d2c7a6587b7cafc/jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
+]
+"langid 1.1.6" = [
+    {url = "https://files.pythonhosted.org/packages/ea/4c/0fb7d900d3b0b9c8703be316fbddffecdab23c64e1b46c7a83561d78bd43/langid-1.1.6.tar.gz", hash = "sha256:044bcae1912dab85c33d8e98f2811b8f4ff1213e5e9a9e9510137b84da2cb293"},
 ]
 "lazy-loader 0.2" = [
     {url = "https://files.pythonhosted.org/packages/0e/c9/acfefeec32fe7090430f515c2bd376da650414a3df0b466030dd56512def/lazy_loader-0.2.tar.gz", hash = "sha256:0edc7a5175c400acb108f283749951fefdadedeb00adcec6e88b974a9254f18a"},

@@ -1,4 +1,6 @@
 import random
+import langid
+
 import sqlalchemy as sa
 from collections.abc import Sequence
 from sqlalchemy.orm import Session
@@ -6,7 +8,7 @@ from sqlalchemy import select, delete
 from pydantic import BaseModel
 from core.users.schemas import UserSchema
 from core.words.schemas import WordCreateSchema
-from core.words.models import Word, Language, QuizQuestion
+from core.words.models import Word, LanguageEnum, Language, QuizQuestion
 from core.caches.services import RedisService
 from parsers.translate_word import TranslateWordService
 
@@ -22,7 +24,7 @@ class WordService:
         parser_service: TranslateWordService,
         cache_service: RedisService,
     ) -> None:
-
+        langid.set_languages([enum.name for enum in LanguageEnum])
         self.parser_service = parser_service
         self.cache_service = cache_service
 
@@ -90,30 +92,18 @@ class WordService:
         ...
 
     async def append_word(self, word: WordCreateSchema, session: Session) -> None:
-        russian_alphabet = [chr(i) for i in range(ord("а"), ord("я")+1)]
-        # ru en
-        language_code = (
-            "ru"
-            if any(ru_symbol in word.word for ru_symbol in russian_alphabet) else
-            "en"
-        )
-        russian, english = session.scalars(
-            select(Language)
-            .where(Language.name.in_(["en", "ru"]))
-            .order_by(Language.order)
-        )
+        language_code = langid.classify(word.word)
         main_word = Word(
             text=word.word,
-            language_id=(
-                russian.id if language_code == 'ru' else english.id
-            )
+            language=LanguageEnum[language_code],
         )
         session.add(main_word)
         session.flush()
         for word_translate in word.translate_words:
+            language_code = langid.classify(word_translate)
             translate = Word(
                 text=word_translate,
-                language_id=(russian.id if language_code == 'en' else english.id)
+                language=LanguageEnum[language_code],
             )
             session.add(translate)
             session.flush()

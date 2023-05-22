@@ -20,7 +20,11 @@ class Language(Base):
     name: Mapped[str]
     order: Mapped[int] = mapped_column(default=1)
 
-    words: Mapped[list[Word]] = relationship(back_populates="language")
+
+class LanguageEnum(str, enum.Enum):
+    ru = "ru"
+    en = "en"
+    ge = "ge"
 
 
 class Word(Base):
@@ -28,9 +32,12 @@ class Word(Base):
 
     id: Mapped[int_pk]
     text: Mapped[str]
-    language_id: Mapped[int] = mapped_column(ForeignKey("languages.id", ondelete="CASCADE"))
 
-    language: Mapped[Language] = relationship(Language, back_populates="words")
+    language: Mapped[LanguageEnum] = mapped_column(
+        Enum(LanguageEnum, native_enum=False),
+        insert_default=LanguageEnum.ru,
+        default=LanguageEnum.ru.value,
+    )
     favorite_for_users: Mapped[list[User]] = relationship(
         secondary="favoriteword",
         back_populates="favorite_words",
@@ -57,17 +64,10 @@ class WordTranslate(Base):
     # )
 
 
-class Translate(Base):
-    __tablename__ = "translates"
-
-    id: Mapped[int_pk]
-
-    from_language_id: Mapped[int] = mapped_column(ForeignKey("languages.id", ondelete="CASCADE"))
-    to_language_id: Mapped[int] = mapped_column(ForeignKey("languages.id", ondelete="CASCADE"))
-
-
 class FavoriteWord(Base):
     __tablename__ = "favoriteword"
+
+    id: Mapped[int_pk]
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
