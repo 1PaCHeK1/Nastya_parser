@@ -1,7 +1,7 @@
 from core.users.schemas import UserSchema, UserCreateSchema, UserUpdateSchema
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from .models import User
+from db.models import User
 
 
 class UserService:

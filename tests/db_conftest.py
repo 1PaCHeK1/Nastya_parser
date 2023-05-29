@@ -14,10 +14,10 @@ from sqlalchemy.engine import Connection, Engine
 
 from alembic import command, config
 
-from core.config import get_config, Settings
+from config import get_config, Settings
 from core.containers import Container
 
-from core.words.models import Language
+from db.models import Language
 
 
 base_dir = pathlib.Path(__file__).resolve().parent.parent

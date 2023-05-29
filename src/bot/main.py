@@ -1,10 +1,11 @@
 import argparse
-import sentry_sdk
+from config import get_config, BotSettings
+from sentry import init as sentry_init
+
 from aiogram import Dispatcher, types, Bot
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from core.containers import Container
-from core.config import get_config
 
 from bot.commands import (
     registration_router,
@@ -32,7 +33,6 @@ def arg_parse():
 
 async def on_startup(bot: Bot, dispatcher: Dispatcher):
     print(bot, dispatcher)
-    config, args = dispatcher["config"], dispatcher["args"]
 
     await bot.set_my_commands([
         types.BotCommand(command="start", description="Запуск бота"),
@@ -55,13 +55,10 @@ async def on_shutdown(dp:Dispatcher):
 
 
 def main():
-    sentry_sdk.init(
-        dsn="https://7a7685a757924dc7ad2d539e2a2aec78@o4504611526672384.ingest.sentry.io/4504611528638464",
-        traces_sample_rate=1.0
-    )
-    config = get_config()
+    sentry_init()
+    config = get_config(BotSettings)
 
-    bot = Bot(token=config.bot.api_token)
+    bot = Bot(token=config.api_token)
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_routers(
         registration_router,
@@ -71,7 +68,6 @@ def main():
         word_router,
     )
     args = arg_parse()
-    config = get_config()
 
     dp["config"] = config
     dp["args"] = args

@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from core.users.models import Base
-from core.words.models import Base
+from db.base import Base
+from db.models import Base
 # from core.database import Base
 
 # this is the Alembic Config object, which provides
@@ -26,7 +26,7 @@ target_metadata = [
     Base.metadata
 ]
 
-from core.config import get_config
+from config import get_config
 config.set_main_option("sqlalchemy.url", get_config().db_url)
 
 

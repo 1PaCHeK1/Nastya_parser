@@ -1,7 +1,7 @@
 from aiogram import types
 from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, IdentCallBack, NavigationCallback, ObjectId, PageNavigator, Query, QueryCallBack
 from bot.core import texts
-from core.words.models import QuizQuestion, RightAnswerEnum, Word
+from db.models import QuizQuestion, RightAnswerEnum, Word
 
 
 add_favorite_keyboard = (

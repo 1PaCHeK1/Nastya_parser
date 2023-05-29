@@ -4,13 +4,13 @@ from datetime import datetime
 import enum
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from sqlalchemy import ForeignKey, Enum
-from core.database import Base
-from core.database.types import int_pk, text
+from db.base import Base
+from db.types import int_pk, text
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from core.users.models import User
+    from db.models import User
 
 
 class Language(Base):
@@ -147,7 +147,3 @@ class QuizTheme(Base):
 
     id: Mapped[int_pk]
     name: Mapped[str]
-
-
-# alembic revision --autogenerate
-# alembic upgrade head

@@ -2,7 +2,7 @@ import pytest
 import os
 from sqlalchemy.orm import Session
 
-from core.config import Settings, get_config
+from config import Settings, get_config
 from core.containers import Container
 from core.users.schemas import UserCreateSchema, UserSchema
 from core.users.services import UserService

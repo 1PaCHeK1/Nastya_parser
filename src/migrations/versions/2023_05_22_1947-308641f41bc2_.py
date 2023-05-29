@@ -6,7 +6,7 @@ Create Date: 2023-05-22 19:47:53.557797
 
 """
 from alembic import op
-from core.words.models import LanguageEnum
+from db.models import LanguageEnum
 import sqlalchemy as sa
 
 

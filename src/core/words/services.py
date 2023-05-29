@@ -8,12 +8,12 @@ from sqlalchemy import select, delete
 from pydantic import BaseModel
 from core.users.schemas import UserSchema
 from core.words.schemas import WordCreateSchema
-from core.words.models import Word, LanguageEnum, Language, QuizQuestion
+from db.models import Word, LanguageEnum, Language, QuizQuestion
 from core.caches.services import RedisService
 from parsers.translate_word import TranslateWordService
 
 
-from core.words.models import Word, FavoriteWord, WordTranslate
+from db.models import Word, FavoriteWord, WordTranslate
 
 # redis -> database -> wooordhunt
 class WordService:

@@ -15,7 +15,7 @@ from sqlalchemy import update, select
 from core.containers import Container
 from core.users.schemas import UserSchema
 from core.words.services import QuizeService, QuizeFilter
-from core.words.models import QuizQuestion, QuizTheme
+from db.models import QuizQuestion, QuizTheme
 from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, QueryCallBack
 
 

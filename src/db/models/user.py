@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 from datetime import date
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
-from core.database import Base
-from core.database.types import str_128, int_pk
+from db.base import Base
+from db.types import str_128, int_pk
 
 if TYPE_CHECKING:
-    from core.words.models import Word
+    from db.models import Word
 
 
 class User(Base):
