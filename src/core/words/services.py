@@ -28,6 +28,10 @@ class WordService:
         self.parser_service = parser_service
         self.cache_service = cache_service
 
+    async def get_words(self, session: Session) -> Sequence[Word]:
+        words = session.scalars(select(Word)).all()
+        return words
+
     async def get_translate_by_id(
         self,
         user: UserSchema,

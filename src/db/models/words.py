@@ -24,7 +24,6 @@ class Language(Base):
 class LanguageEnum(str, enum.Enum):
     ru = "ru"
     en = "en"
-    ge = "ge"
 
 
 class Word(Base):

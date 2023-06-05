@@ -1,12 +1,12 @@
 import sentry_sdk
 from sentry_sdk.integrations import Integration
-from config import get_config, SentrySettings
+from settings import get_settings, SentrySettings
 
 
 def init(integrations: list[Integration] | None = None):
     integrations = integrations or []
 
-    config = get_config(SentrySettings)
+    config = get_settings(SentrySettings)
 
     sentry_sdk.init(
         dsn=config.dsn,

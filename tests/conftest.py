@@ -2,7 +2,7 @@ import pytest
 import os
 from sqlalchemy.orm import Session
 
-from config import Settings, get_config
+from settings import Settings, get_settings
 from core.containers import Container
 from core.users.schemas import UserCreateSchema, UserSchema
 from core.users.services import UserService
@@ -18,7 +18,7 @@ pytest_plugins = [
 def config() -> Settings:
     env = "test"
     os.environ["ENV"] = env
-    db_config = get_config(environment=env)
+    db_config = get_settings(environment=env)
     return db_config
 
 

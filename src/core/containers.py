@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from parsers.container import ParserContainer
 
-from config import ContainterSettings
+from settings import ContainterSettings
 from db.base import Database
 from .users import services as user_services
 from .words import services as word_services

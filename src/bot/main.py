@@ -1,5 +1,5 @@
 import argparse
-from config import get_config, BotSettings
+from settings import get_settings, BotSettings
 from sentry import init as sentry_init
 
 from aiogram import Dispatcher, types, Bot
@@ -56,7 +56,7 @@ async def on_shutdown(dp:Dispatcher):
 
 def main():
     sentry_init()
-    config = get_config(BotSettings)
+    config = get_settings(BotSettings)
 
     bot = Bot(token=config.api_token)
     dp = Dispatcher(storage=MemoryStorage())

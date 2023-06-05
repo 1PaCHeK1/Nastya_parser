@@ -26,8 +26,8 @@ target_metadata = [
     Base.metadata
 ]
 
-from config import get_config
-config.set_main_option("sqlalchemy.url", get_config().db_url)
+from settings import get_settings
+config.set_main_option("sqlalchemy.url", get_settings().db_url)
 
 
 

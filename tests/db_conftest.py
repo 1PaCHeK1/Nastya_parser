@@ -14,7 +14,7 @@ from sqlalchemy.engine import Connection, Engine
 
 from alembic import command, config
 
-from config import get_config, Settings
+from settings import get_settings, Settings
 from core.containers import Container
 
 from db.models import Language
@@ -34,7 +34,7 @@ def event_loop():
 def db_config() -> Settings:
     env = "test"
     os.environ["ENV"] = env
-    db_config = get_config(environment=env)
+    db_config = get_settings(environment=env)
     return db_config
 
 
