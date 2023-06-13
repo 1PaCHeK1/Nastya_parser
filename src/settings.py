@@ -25,7 +25,6 @@ class DatabaseSettings(BaseSettings):
     port: int = 5432
     user: str
     password: str
-    url: str
 
     echo: bool = True
 

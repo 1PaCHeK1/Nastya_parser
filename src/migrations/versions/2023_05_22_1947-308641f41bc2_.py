@@ -40,17 +40,22 @@ def upgrade() -> None:
     stmt = sa.select(languages_table.c.name, languages_table.c.id)
     languages_hashmap = dict(tuple(bind.execute(stmt))) # dict[name, id]
 
-    update_stmt = sa.update(words_table).values(
-        language=sa.case(
-            *[
-                (languages_hashmap[enum.name] == words_table.c.language_id, enum.name)
-                for enum in LanguageEnum
-                if enum.name in languages_hashmap
-            ],
-            else_=LanguageEnum.ru.name,
+    if languages_hashmap:
+        update_stmt = sa.update(words_table).values(
+            language=sa.case(
+                *[
+                    (
+                        languages_hashmap[enum.name] == words_table.c.language_id, 
+                        enum.name,
+                    )
+                    for enum in LanguageEnum
+                    if enum.name in languages_hashmap
+                ],
+                else_=LanguageEnum.ru.name,
+            )
         )
-    )
-    bind.execute(update_stmt)
+        bind.execute(update_stmt)
+
     op.alter_column('words', "language", nullable=False)
 
     op.drop_table('translates')

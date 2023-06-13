@@ -2,13 +2,16 @@ import random
 import langid
 
 import sqlalchemy as sa
+
+from sqlalchemy.dialects import postgresql
 from collections.abc import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 from pydantic import BaseModel
 from core.users.schemas import UserSchema
+from core.words.dto import WordCoreFilter
 from core.words.schemas import WordCreateSchema
-from db.models import Word, LanguageEnum, Language, QuizQuestion
+from db.models import Word, LanguageEnum, QuizQuestion
 from core.caches.services import RedisService
 from parsers.translate_word import TranslateWordService
 
@@ -28,9 +31,13 @@ class WordService:
         self.parser_service = parser_service
         self.cache_service = cache_service
 
-    async def get_words(self, session: Session) -> Sequence[Word]:
-        words = session.scalars(select(Word)).all()
-        return words
+    async def get_words(
+        self, 
+        filter_: WordCoreFilter, 
+        session: Session,
+    ) -> Sequence[Word]:
+        stmt = select(Word).where(filter_.get_expression())
+        return session.scalars(stmt).all()
 
     async def get_translate_by_id(
         self,
