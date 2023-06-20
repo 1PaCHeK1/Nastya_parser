@@ -1,19 +1,22 @@
-
-from contextlib import contextmanager, AbstractContextManager
-from typing import Callable
+from collections.abc import Iterator, Generator
+from contextlib import contextmanager
+from injector import inject
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import declarative_base, Session
 
+from settings import DatabaseSettings
 
 Base = declarative_base()
 
 
 class Database:
-    def __init__(self, connection_url: str, echo: bool = True) -> None:
-
-        self._engine = create_engine(connection_url, echo=echo)
-        self._session_factory = orm.scoped_session(
+    def __init__(self, settings: DatabaseSettings) -> None:
+        self._engine = create_engine(
+            settings.url,
+            echo=settings.echo,
+        )
+        self.session_factory = orm.scoped_session(
             orm.sessionmaker(
                 autocommit=False,
                 autoflush=False,
@@ -22,32 +25,12 @@ class Database:
         )
 
     @contextmanager
-    def session(self) -> Callable[..., AbstractContextManager[Session]]:
-        session = self._session_factory()
-        try:
+    def session(self) -> Iterator[Session]:
+        with self.session_factory() as session:
             yield session
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def select_all(self, statement):
-        with self.session() as session:
-            return session.execute(statement).fetchone().all()
 
 
-    def select_one(self, statement):
-        with self.session() as session:
-            return session.execute(statement).one()
-
-    def select_first(self, statement):
-        with self.session() as session:
-            result = session.execute(statement).scalars()
-            if result:
-                return result[0]
-        return None
-
-    def select_scalar(self, statement):
-        with self.session() as session:
-            return session.execute(statement).scalar()
+@contextmanager
+def get_session(database: Database) -> Generator[Session]:
+    with database.session_factory() as session:
+        yield session

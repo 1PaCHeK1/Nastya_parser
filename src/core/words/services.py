@@ -32,8 +32,8 @@ class WordService:
         self.cache_service = cache_service
 
     async def get_words(
-        self, 
-        filter_: WordCoreFilter, 
+        self,
+        filter_: WordCoreFilter,
         session: Session,
     ) -> Sequence[Word]:
         stmt = select(Word).where(filter_.get_expression())

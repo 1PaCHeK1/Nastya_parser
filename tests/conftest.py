@@ -1,5 +1,6 @@
 import pytest
 import os
+
 from sqlalchemy.orm import Session
 
 from settings import Settings, get_settings

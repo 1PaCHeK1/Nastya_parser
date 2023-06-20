@@ -1,5 +1,6 @@
-from typing import Iterator
-from fastapi import Depends
+import functools
+from typing import Any, ClassVar, Generic, Iterator, TypeVar
+from fastapi import Depends, Request, params
 from sqlalchemy.orm import Session
 from dependency_injector.wiring import Provide, inject
 from core.containers import Container

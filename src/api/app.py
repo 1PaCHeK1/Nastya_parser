@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from settings import get_settings, FastApiSettings
 from starlette.middleware.cors import CORSMiddleware
+from aioinject.ext.fastapi import InjectMiddleware
 from sentry import init as sentry_init
 from core.containers import Container
+from core.depends import create_container
 from api.router import word_router
 
 
@@ -20,11 +22,13 @@ def create_fastapi() -> FastAPI:
 
     app = FastAPI()
     app.container = container
+    app.aicontainer = create_container()
 
     app.add_middleware(
         CORSMiddleware,
         allow_methods=["*"],
     )
+    app.add_middleware(InjectMiddleware, container=app.aicontainer)
 
     @app.get("/healthcheck/")
     async def healthcheck() -> None:

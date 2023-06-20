@@ -3,6 +3,7 @@ from redis import asyncio as aioredis
 from contextlib import asynccontextmanager
 from enum import Enum
 
+from settings import RedisSettings
 from core.users.schemas import UserSchema
 
 
@@ -12,8 +13,8 @@ class RedisDbEnum(int, Enum):
 
 
 class RedisService:
-    def __init__(self, connection_url: str) -> None:
-        self.redis_url = connection_url
+    def __init__(self, settings: RedisSettings) -> None:
+        self.redis_url = settings.url
 
     async def get_translations(self, user_id) -> list[str]:
         async with self.get_context(RedisDbEnum.user_words_daily) as redis:
