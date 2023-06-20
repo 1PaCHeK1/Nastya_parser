@@ -1,6 +1,5 @@
 from collections.abc import Iterator, Generator
 from contextlib import contextmanager
-from injector import inject
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import declarative_base, Session
