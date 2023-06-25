@@ -10,6 +10,7 @@ from aioinject.ext.fastapi import inject as ai_inject
 from core.containers import Container
 from core.words.dto import WordCoreFilter
 from core.words.services import WordService
+from core.words.schemas import WordCreateSchema
 from api.schemas.word import WordSchema
 from db.models import LanguageEnum
 
@@ -54,5 +55,13 @@ async def get_languages() -> list[str]:
 
 
 @router.post("/")
-async def insert_word(body: WordInsertWithTranslateSchema) -> None:
-    print(body)
+@ai_inject
+async def insert_word(
+    body: WordInsertWithTranslateSchema, 
+    session: Annotated[Session, Inject],
+    word_service: Annotated[WordService, Inject]) -> None:
+    word = {
+        'word': body.text,
+        'translate_words': [translate.text for translate in body.translates]
+            }
+    word_service.append_word(WordCreateSchema.parse_obj(word), session)
