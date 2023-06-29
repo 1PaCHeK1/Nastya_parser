@@ -1,5 +1,6 @@
 from aioinject import Container, Callable, Singleton, Object
 from sqlalchemy.orm import Session
+from core.image.usecases import ReadTextFromImageUseCase
 
 from settings import (
     DatabaseSettings,
@@ -42,5 +43,6 @@ def create_container() -> Container:
     container.register(Callable(cache_services.RedisService))
 
     container.register(Callable(image_services.ImageProcessService))
+    container.register(Callable(ReadTextFromImageUseCase))
 
     return container
