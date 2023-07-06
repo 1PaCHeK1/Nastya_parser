@@ -6,7 +6,7 @@ from aioinject.ext.fastapi import InjectMiddleware
 from sentry import init as sentry_init
 from core.containers import Container
 from core.depends import create_container
-from api.router import word_router
+from api.router import router
 from api.handlers import handle_validation_errors
 
 
@@ -40,7 +40,7 @@ def create_fastapi() -> FastAPI:
     async def healthcheck() -> None:
         return None
 
-    app.include_router(word_router)
+    app.include_router(router)
 
     return app
 

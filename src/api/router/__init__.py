@@ -1,6 +1,5 @@
-from .word import router as word_router
-
+from ._routers import router
 
 __all__ = [
-    "word_router",
+    "router",
 ]

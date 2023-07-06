@@ -1,6 +1,7 @@
 from typing import Annotated
 from business_validator import ErrorSchema, ValidationError
 from sqlalchemy.orm import Session
+from api.auth import Authenticate
 from api.router.bodies import WordInsertWithTranslateSchema
 from api.router.filters import WordFilterParams
 from fastapi import APIRouter, Depends, UploadFile, Request
@@ -38,6 +39,7 @@ async def get_all_words(
 @router.get("/test")
 @ai_inject
 async def get_all_words_test(
+    token: Authenticate,
     params: Annotated[WordFilterParams, Depends()],
     session: Annotated[Session, Inject],
     word_service: Annotated[WordService, Inject],

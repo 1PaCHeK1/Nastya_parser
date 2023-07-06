@@ -12,10 +12,12 @@ from .words import (
     QuizQuestion,
     QuizTheme,
 )
+from .auth import Token
 
 
 __all__ = [
     "User",
+    "Token",
     "Language",
     "LanguageEnum",
     "Word",
