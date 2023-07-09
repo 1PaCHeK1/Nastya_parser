@@ -1,7 +1,7 @@
 from typing import Annotated
 from starlette import status
 from aioinject import Inject
-from aioinject.ext.fastapi import inject
+from aioinject.ext.fastapi import inject as ai_inject
 from fastapi import APIRouter
 from sqlalchemy.orm import Session
 from api.auth import Authenticate
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/auth")
 
 
 @router.post("/signin")
-@inject
+@ai_inject
 async def signin(
     body: SignInSchema,
     session: Annotated[Session, Inject],
@@ -21,7 +21,7 @@ async def signin(
 
 
 @router.post("/logout")
-@inject
+@ai_inject
 async def logout(
     token: Authenticate,
 ) -> None:
@@ -29,7 +29,7 @@ async def logout(
 
 
 @router.get("/tokens")
-@inject
+@ai_inject
 async def get_all_tokens(
     token: Authenticate,
     session: Annotated[Session, Inject],

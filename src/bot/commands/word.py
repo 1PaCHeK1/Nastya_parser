@@ -1,11 +1,12 @@
 from contextlib import AbstractContextManager
 import json
-from typing import Callable
+from typing import Annotated, Callable
 from aiogram import types, Router
 from aiogram.filters import Command
+from aioinject import Inject
 from bot.utils.auth import IdentifyUserFilter, RequiredUserFilter
 from core.users.schemas import UserSchema
-from dependency_injector.wiring import Provide, inject
+from aioinject.ext.fastapi import inject as ai_inject
 from sqlalchemy.orm import Session
 
 from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, ObjectId, PageNavigator, Query
@@ -21,21 +22,20 @@ from core.words.services import WordService
 router = Router()
 
 
-@inject
+@ai_inject
 async def get_translate(
     user: UserSchema,
     *,
     text: str|None=None,
     word_id:int|None=None,
-    word_service: WordService = Provide[Container.word_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    word_service: Annotated[WordService, Inject],
+    session: Annotated[Session, Inject],
 ) -> list[str]:
-    with get_session() as session:
-        if text is not None:
-            return await word_service.get_translate(user, text, session)
-        if word_id is not None:
-            return await word_service.get_translate_by_id(user, word_id, session)
-        raise ValueError
+    if text is not None:
+        return await word_service.get_translate(user, text, session)
+    if word_id is not None:
+        return await word_service.get_translate_by_id(user, word_id, session)
+    raise ValueError
 
 
 @router.message(Command("favorites"), RequiredUserFilter())
@@ -49,10 +49,10 @@ async def get_favorites(
 
 
 @router.message(Command("list"))
-@inject
+@ai_inject
 async def get_list_word(
     message: types.Message,
-    redis_service: RedisService = Provide[Container.redis_service]
+    redis_service: Annotated[RedisService, Inject]
 ):
     texts = (
         "\n".join(await redis_service.get_translations(message.from_id))
@@ -89,59 +89,55 @@ async def callback(
             await callback_info.message.edit_reply_markup(markup)
 
 
-@inject
+@ai_inject
 async def add_favorite(
     data:types.callback_query.CallbackQuery,
     user: UserSchema,
-    word_service: WordService = Provide[Container.word_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    word_service: Annotated[WordService, Inject],
+    session: Annotated[Session, Inject],
 ):
     word = data.message.reply_to_message.text
     translate = data.message.text
 
-    with get_session() as session:
-        await word_service.add_favorite(word, user, session)
+    await word_service.add_favorite(word, user, session)
     await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
-@inject
+@ai_inject
 async def remove_favorite(
     data:types.callback_query.CallbackQuery,
     user: UserSchema,
-    word_service: WordService = Provide[Container.word_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    word_service: Annotated[WordService, Inject],
+    session: Annotated[Session, Inject],
 ):
     word = data.message.reply_to_message.text
     translate = data.message.text
-    with get_session() as session:
-        await word_service.remove_favorite(word, user, session)
+    await word_service.remove_favorite(word, user, session)
     await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")  # noqa: E501
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
 
 
-@inject
+@ai_inject
 async def get_list_favorite(
+    word_service: Annotated[WordService, Inject],
+    session: Annotated[Session, Inject],
     user: UserSchema,
     page_number: int = 0,
-    word_service: WordService = Provide[Container.word_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
 ):
-    with get_session() as session:
-        favorite_words = await word_service.get_favorite(user, page_number, session)
+    favorite_words = await word_service.get_favorite(user, page_number, session)
     return favorite_words
 
 
 @router.message(IdentifyUserFilter())
-@inject
+@ai_inject
 async def translate_word(
     message: types.Message,
     user: UserSchema,
-    word_service: WordService = Provide[Container.word_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    word_service: Annotated[WordService, Inject],
+    session: Annotated[Session, Inject],
 ):
-    with get_session() as session:
-        words = await word_service.get_translate(user, message.text, session)
+    words = await word_service.get_translate(user, message.text, session)
     if words:
         words = ", ".join(words)
         await message.reply(words, reply_markup=key_inline.add_favorite_keyboard)

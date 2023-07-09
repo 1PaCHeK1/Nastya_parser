@@ -5,10 +5,8 @@ from api.auth import Authenticate
 from api.router.bodies import WordInsertWithTranslateSchema
 from api.router.filters import WordFilterParams
 from fastapi import APIRouter, Depends, UploadFile, Request
-from dependency_injector.wiring import Provide, inject
 from aioinject import Inject
 from aioinject.ext.fastapi import inject as ai_inject
-from core.containers import Container
 from core.image.usecases import ReadTextFromImageUseCase
 from core.words.dto import WordCoreFilter
 from core.words.services import WordService
@@ -20,25 +18,9 @@ from db.models import LanguageEnum
 router = APIRouter(prefix="/word")
 
 
-@router.get("/")
-@inject
-async def get_all_words(
-    params: Annotated[WordFilterParams, Depends()],
-    get_session_db = Depends(Provide[Container.database.provided.session]),
-    word_service: WordService = Depends(Provide[Container.word_service]),
-) -> list[WordSchema]:
-    with get_session_db() as session:
-        words = await word_service.get_words(
-            WordCoreFilter(language=params.language, contain=params.contain),
-            session,
-        )
-
-    return WordSchema.from_orm_list(words)
-
-
-@router.get("/test")
+@router.get("/words")
 @ai_inject
-async def get_all_words_test(
+async def get_all_words(
     token: Authenticate,
     params: Annotated[WordFilterParams, Depends()],
     session: Annotated[Session, Inject],
@@ -52,7 +34,7 @@ async def get_all_words_test(
 
 
 @router.get("/languages")
-@inject
+@ai_inject
 async def get_languages() -> list[str]:
     return [enum.name for enum in LanguageEnum]
 
