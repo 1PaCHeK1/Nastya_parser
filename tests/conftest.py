@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from settings import Settings, get_settings
 from core.containers import Container
 from core.users.schemas import UserCreateSchema, UserSchema
-from core.users.services import UserService
+from core.users.services import UserTgService
 from core.words.services import WordService
 
 
@@ -37,12 +37,12 @@ def word_service(container: Container) -> WordService:
 
 
 @pytest.fixture()
-def user_service(container: Container) -> UserService:
+def user_service(container: Container) -> UserTgService:
     return container.user_service()
 
 
 @pytest.fixture()
-async def user(session: Session, user_service: UserService) -> UserSchema:
+async def user(session: Session, user_service: UserTgService) -> UserSchema:
     tg_id=648253536
     await user_service.create_user(
         UserCreateSchema(

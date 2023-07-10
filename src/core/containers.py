@@ -25,7 +25,7 @@ class Container(containers.DeclarativeContainer):
         connection_url=config.provided.redis.url,
     )
 
-    user_service = providers.Factory(user_services.UserService)
+    user_service = providers.Factory(user_services.UserTgService)
 
     _parser = providers.Container(ParserContainer)
 

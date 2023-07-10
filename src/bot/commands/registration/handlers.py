@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from core.containers import Container
 from core.users.schemas import UserCreateSchema
-from core.users.services import UserService
+from core.users.services import UserTgService
 from bot.keyboards.callback_enum import BaseData, CallbakDataEnum
 from bot.core import texts
 
@@ -71,7 +71,7 @@ async def username_registration(message: types.Message, state: FSMContext):
 async def email_registration(
     message: types.Message,
     state: FSMContext,
-    user_service: UserService = Provide[Container.user_service]
+    user_service: UserTgService = Provide[Container.user_service]
 ):
     await message.reply(texts.invalid_registration_email_text)
 
@@ -81,7 +81,7 @@ async def email_registration(
 async def email_registration(
     message: types.Message,
     state: FSMContext,
-    user_service: UserService = Provide[Container.user_service],
+    user_service: UserTgService = Provide[Container.user_service],
     get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
 ):
     async with state.proxy() as data:

@@ -15,9 +15,10 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int_pk]
-    username: Mapped[str_128|None]
-    email: Mapped[str_128|None] = mapped_column(unique=True)
-    tg_id: Mapped[int|None] = mapped_column(unique=True)
+    username: Mapped[str_128 | None]
+    email: Mapped[str_128 | None] = mapped_column(unique=True)
+    password: Mapped[str_128 | None]
+    tg_id: Mapped[int | None] = mapped_column(unique=True)
     create_at: Mapped[date] = mapped_column(insert_default=date.today)
     is_active: Mapped[bool] = mapped_column(insert_default=False)
 

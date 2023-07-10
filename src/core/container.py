@@ -17,6 +17,8 @@ from .users import services as user_services
 from .words import services as word_services
 from .caches import services as cache_services
 from .image import services as image_services
+from .users import usecases as user_cases
+from .mail import services as mail_services
 
 
 def create_container() -> Container:
@@ -35,7 +37,11 @@ def create_container() -> Container:
     container.register(Singleton(Database))
     container.register(Callable(get_session, Session))
 
+    container.register(Callable(mail_services.MailService))
+    container.register(Callable(user_services.UserTgService))
     container.register(Callable(user_services.UserService))
+    container.register(Callable(user_services.HashService))
+    container.register(Callable(user_cases.RegistrationFromApiUseCase))
 
     container.register(Callable(word_services.WordService))
     container.register(Callable(word_services.TranslateWordService))

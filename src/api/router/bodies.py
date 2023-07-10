@@ -10,3 +10,9 @@ class WordInsertSchema(BaseModel):
 
 class WordInsertWithTranslateSchema(WordInsertSchema):
     translates: list[WordInsertSchema]
+
+
+class UserRegistrationSchema(BaseModel):
+    email: str
+    username: str
+    password: str

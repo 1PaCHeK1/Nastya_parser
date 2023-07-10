@@ -20,3 +20,19 @@ class UserUpdateSchema(BaseModel):
     username: str
     email: str = Field(regex=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
     tg_id: int = Field(gt=10*9-1, lt=10**10)
+
+
+class UserRegistrationApiDto(BaseModel):
+    username: str = Field(min_length=5, max_length=20)
+    email: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserRegistrationTgDto(BaseModel):
+    tg_id: int = Field(gt=10*9-1, lt=10**10)
+
+    class Config:
+        orm_mode = True

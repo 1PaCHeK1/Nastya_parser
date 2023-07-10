@@ -6,7 +6,7 @@ from api.router.bodies import WordInsertWithTranslateSchema
 from api.router.filters import WordFilterParams
 from fastapi import APIRouter, Depends, UploadFile, Request
 from aioinject import Inject
-from aioinject.ext.fastapi import inject as ai_inject
+from aioinject.ext.fastapi import inject
 from core.image.usecases import ReadTextFromImageUseCase
 from core.words.dto import WordCoreFilter
 from core.words.services import WordService
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/word")
 
 
 @router.get("/words")
-@ai_inject
+@inject
 async def get_all_words(
     token: Authenticate,
     params: Annotated[WordFilterParams, Depends()],
@@ -34,13 +34,13 @@ async def get_all_words(
 
 
 @router.get("/languages")
-@ai_inject
+@inject
 async def get_languages() -> list[str]:
     return [enum.name for enum in LanguageEnum]
 
 
 @router.post("/")
-@ai_inject
+@inject
 async def insert_word(
     body: WordInsertWithTranslateSchema,
     session: Annotated[Session, Inject],
@@ -54,7 +54,7 @@ async def insert_word(
 
 
 @router.post("/translate-image")
-@ai_inject
+@inject
 async def translate_image(
     upload_file: UploadFile,
     usecase: Annotated[ReadTextFromImageUseCase, Inject],
@@ -67,7 +67,7 @@ async def translate_image(
 
 
 @router.post("/stream")
-@ai_inject
+@inject
 async def stream(
     request: Request,
 ) -> None:

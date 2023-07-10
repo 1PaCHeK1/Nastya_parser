@@ -13,7 +13,6 @@ from sqlalchemy.orm import Session
 from aiogram.methods import EditMessageReplyMarkup
 from sqlalchemy import update, select
 
-from core.containers import Container
 from core.users.schemas import UserSchema
 from core.words.services import QuizeService, QuizeFilter
 from db.models import QuizQuestion, QuizTheme

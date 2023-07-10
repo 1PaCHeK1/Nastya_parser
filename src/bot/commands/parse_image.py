@@ -4,7 +4,6 @@ from aiogram.filters import Command
 from aioinject import Inject
 from aioinject.ext.fastapi import inject as ai_inject
 
-from core.containers import Container
 from core.image.services import ImageProcessService
 
 

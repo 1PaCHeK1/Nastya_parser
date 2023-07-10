@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aioinject import Inject
 from bot.utils.auth import IdentifyUserFilter, RequiredUserFilter
 from core.users.schemas import UserSchema
-from aioinject.ext.fastapi import inject as ai_inject
+from aioinject import inject as ai_inject
 from sqlalchemy.orm import Session
 
 from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, ObjectId, PageNavigator, Query
@@ -14,7 +14,6 @@ from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, ObjectId,
 import bot.keyboards.inline as key_inline
 
 
-from core.containers import Container
 from core.caches.services import RedisService
 from core.words.services import WordService
 

@@ -9,7 +9,7 @@ from aioinject.ext.fastapi import inject as ai_inject
 from sqlalchemy.orm import Session
 
 from core.containers import Container
-from core.users.services import UserService
+from core.users.services import UserTgService
 
 
 
@@ -18,7 +18,7 @@ class IdentifyUserFilter(Filter):
     async def __call__(
         self,
         message: types.Message | types.CallbackQuery,
-        user_service: Annotated[UserService, Inject],
+        user_service: Annotated[UserTgService, Inject],
         session: Annotated[Session, Inject],
         state: FSMContext = None,
         *args,
@@ -38,7 +38,7 @@ class RequiredUserFilter(Filter):
     async def __call__(
         self,
         message: types.Message | types.CallbackQuery,
-        user_service: Annotated[UserService, Inject],
+        user_service: Annotated[UserTgService, Inject],
         session: Annotated[Session, Inject],
         config: Any,
         state: FSMContext = None,
