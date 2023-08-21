@@ -1,9 +1,13 @@
+import aio_pika
 from aioinject import Container, Callable, Singleton, Object
 from sqlalchemy.orm import Session
 from core.image.usecases import ReadTextFromImageUseCase
+from rabbit.channel import create_channel
+from rabbit.connection import create_connection
 
 from settings import (
     DatabaseSettings,
+    RabbitSettings,
     RedisSettings,
     AppSettings,
     FastApiSettings,
@@ -31,10 +35,13 @@ def create_container() -> Container:
         FastApiSettings,
         SentrySettings,
         BotSettings,
+        RabbitSettings,
     ]:
         container.register(Object(get_settings(settings_type), settings_type))
 
     container.register(Singleton(Database))
+    container.register(Singleton(create_connection, aio_pika.abc.AbstractConnection))
+    container.register(Callable(create_channel, aio_pika.abc.AbstractChannel))
     container.register(Callable(get_session, Session))
 
     container.register(Callable(mail_services.MailService))
@@ -50,5 +57,6 @@ def create_container() -> Container:
 
     container.register(Callable(image_services.ImageProcessService))
     container.register(Callable(ReadTextFromImageUseCase))
+
 
     return container

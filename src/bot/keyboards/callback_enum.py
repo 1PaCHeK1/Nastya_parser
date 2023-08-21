@@ -3,8 +3,7 @@ from aiogram.filters.callback_data import CallbackData
 from enum import Enum
 from typing import Any, TypeVar
 
-from pydantic import BaseModel, Field, BaseConfig
-from pydantic.generics import GenericModel
+from pydantic import BaseModel, Field
 
 
 _T = TypeVar("_T")

@@ -1,13 +1,12 @@
 from collections.abc import Sequence
 from typing import Any
 from typing_extensions import Self
-from pydantic import BaseModel, BaseConfig
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseSchema(BaseModel):
-    class Config(BaseConfig):
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
-    def from_orm_list(cls, objs: Sequence[Any]) -> list[Self]:
-        return [cls.from_orm(item) for item in objs]
+    def model_validate_list(cls, objs: Sequence[Any]) -> list[Self]:
+        return [cls.model_validate(item) for item in objs]

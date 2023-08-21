@@ -1,10 +1,9 @@
 from typing import Literal, TypeVar
-from pydantic import BaseSettings, BaseConfig
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
 
 TSettings = TypeVar("TSettings", bound=BaseSettings)
-
 
 
 def get_settings(settings: type[TSettings]) -> TSettings:
@@ -12,14 +11,15 @@ def get_settings(settings: type[TSettings]) -> TSettings:
 
 
 class SentrySettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="sentry_")
+
     dsn: str | None = None
     traces_sample_rate: float = 1.0
 
-    class Config(BaseConfig):
-        env_prefix = "sentry_"
-
 
 class DatabaseSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="db_")
+
     name: str = "localhost"
     host: str
     port: int = 5432
@@ -32,11 +32,10 @@ class DatabaseSettings(BaseSettings):
     def url(self) -> str:
         return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
 
-    class Config(BaseConfig):
-        env_prefix = "db_"
-
 
 class RedisSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="redis_")
+
     host: str = "localhost"
     port: int = 6379
     url: str
@@ -45,21 +44,19 @@ class RedisSettings(BaseSettings):
     def url(self) -> str:
         return f"redis://{self.host}:{self.port}"
 
-    class Config(BaseConfig):
-        env_prefix = "redis_"
-
 
 class AppSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="app_")
+
     name: str = "Parser"
     debug: bool = True
     environment: Literal["local"] | Literal["dev"] | Literal["prod"]
     cert_file_path: str = ""
 
-    class Config(BaseConfig):
-        env_prefix = "app_"
-
 
 class BotSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="bot_")
+
     api_token: str
 
     webhook_host: str
@@ -67,13 +64,10 @@ class BotSettings(BaseSettings):
     webapp_host: str
     webapp_port: int
 
-    class Config(BaseConfig):
-        env_prefix = "bot_"
 
 
 class FastApiSettings(BaseSettings):
-    class Config(BaseConfig):
-        env_prefix = "api_"
+    model_config = SettingsConfigDict(env_prefix="api_")
 
 
 class ContainterSettings:
@@ -91,3 +85,17 @@ class ContainterSettings:
         self.api = get_settings(FastApiSettings)
         self.database = get_settings(DatabaseSettings)
         self.redis = get_settings(RedisSettings)
+
+
+class RabbitSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="rabbit_")
+
+    host: str
+    user: str
+    password: str
+
+    prefetch_count: int = 10
+
+    @property
+    def url(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}/"

@@ -1,6 +1,7 @@
 from core.mail.services import MailService
 from core.users.schemas import UserRegistrationApiDto
 from core.users.services import HashService, UserService
+from core.mail.dto import EmailMessageDto
 
 from db.models import User
 
@@ -24,10 +25,13 @@ class RegistrationFromApiUseCase:
         self._user_service.flush()
 
         token = self._hash.encode_user(user)
-        self._mail_service.send(
-            to=user.email,
-            content=token,
+
+        message = EmailMessageDto(
+            recipients=[user.email],
+            subject="Код активации",
+            message=token,
         )
+        await self._mail_service.send(message)
 
         print(self._hash.decode_user(token))
 

@@ -30,7 +30,7 @@ async def registration(
     if user is None:
         return HTTPException(status_code=400)
 
-    return UserSchema.from_orm(user)
+    return UserSchema.model_validate(user)
 
 
 @router.post("/activation/{token}")

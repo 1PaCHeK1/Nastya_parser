@@ -30,7 +30,7 @@ async def get_all_words(
         WordCoreFilter(language=params.language, contain=params.contain),
         session,
     )
-    return WordSchema.from_orm_list(words)
+    return WordSchema.model_validate_list(words)
 
 
 @router.get("/languages")

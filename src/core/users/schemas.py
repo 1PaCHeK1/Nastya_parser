@@ -1,38 +1,42 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class UserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     username: str
     email: str
-    tg_id: int
+    tg_id: int | None
 
-    class Config:
-        orm_mode = True
 
 class UserCreateSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     username: str
-    email: str = Field(regex=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
+    email: str = Field(pattern=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
     tg_id: int = Field(gt=10*9-1, lt=10**10)
 
 
 class UserUpdateSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     username: str
-    email: str = Field(regex=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
+    email: str = Field(pattern=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
     tg_id: int = Field(gt=10*9-1, lt=10**10)
 
 
 class UserRegistrationApiDto(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     username: str = Field(min_length=5, max_length=20)
     email: str
     password: str
 
-    class Config:
-        orm_mode = True
 
 
 class UserRegistrationTgDto(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     tg_id: int = Field(gt=10*9-1, lt=10**10)
 
-    class Config:
-        orm_mode = True
