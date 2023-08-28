@@ -5,12 +5,15 @@ from .words import (
     Word,
     WordTranslate,
     FavoriteWord,
-    PostTags,
-    Post,
-    Tag,
     RightAnswerEnum,
     QuizQuestion,
     QuizTheme,
+)
+from ._post import (
+    PostTags,
+    Post,
+    Tag,
+    ViewedPost,
 )
 from .auth import Token
 
@@ -26,6 +29,7 @@ __all__ = [
     "PostTags",
     "Post",
     "Tag",
+    "ViewedPost",
     "RightAnswerEnum",
     "QuizQuestion",
     "QuizTheme",

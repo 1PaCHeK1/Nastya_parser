@@ -2,6 +2,8 @@ import aio_pika
 from aioinject import Container, Callable, Singleton, Object
 from sqlalchemy.orm import Session
 from core.image.usecases import ReadTextFromImageUseCase
+from core.posts.query import GetUnreadedPostQuery
+from core.posts.repository import PostRepository
 from rabbit.channel import create_channel
 from rabbit.connection import create_connection
 
@@ -57,6 +59,8 @@ def create_container() -> Container:
 
     container.register(Callable(image_services.ImageProcessService))
     container.register(Callable(ReadTextFromImageUseCase))
+    container.register(Callable(GetUnreadedPostQuery))
+    container.register(Callable(PostRepository))
 
 
     return container

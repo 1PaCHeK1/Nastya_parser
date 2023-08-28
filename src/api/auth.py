@@ -43,4 +43,4 @@ async def authenticate(
     return token
 
 
-Authenticate = Annotated[None, Depends(authenticate)]
+Authenticate = Annotated[Token, Depends(authenticate)]
