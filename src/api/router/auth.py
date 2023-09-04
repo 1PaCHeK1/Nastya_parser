@@ -1,5 +1,4 @@
 from typing import Annotated
-from starlette import status
 from aioinject import Inject
 from aioinject.ext.fastapi import inject
 from fastapi import APIRouter

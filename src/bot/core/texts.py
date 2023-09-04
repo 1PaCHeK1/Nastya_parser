@@ -8,9 +8,9 @@ welcome_text_auth = """
 Рады что ты с нами!
 """
 
-not_auth_text="""Извини, но для этой функции нужно зарегистрироваться"""
+not_auth_text = """Извини, но для этой функции нужно зарегистрироваться"""
 
-info_text="""Help info"""
+info_text = """Help info"""
 
 add_to_favourites_text = "Добавить в избранное"
 

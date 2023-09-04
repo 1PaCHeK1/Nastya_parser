@@ -1,4 +1,4 @@
-from typing import IO, BinaryIO
+from typing import BinaryIO
 from PIL import Image, ImageFilter
 from contextlib import contextmanager
 
@@ -17,7 +17,7 @@ class LanguageEnum(enum.Enum):
 class ImageProcessService:
     def get_text_from_image(
         self,
-        image: Image.Image | BinaryIO |  bytes,
+        image: Image.Image | BinaryIO | bytes,
         lang: LanguageEnum = LanguageEnum.auto,
     ) -> str:
         with self.build_image(image) as image:
@@ -29,12 +29,8 @@ class ImageProcessService:
         image: Image.Image,
         lang: LanguageEnum,
     ) -> str:
-        prepared_image = (
-            image
-            .convert("L")
-            .filter(
-                ImageFilter.SMOOTH_MORE(),
-            )
+        prepared_image = image.convert("L").filter(
+            ImageFilter.SMOOTH_MORE(),
         )
         return pytesseract.image_to_string(
             prepared_image,

@@ -1,15 +1,11 @@
 from aiogram.filters.callback_data import CallbackData
 
 from enum import Enum
-from typing import Any, TypeVar
 
-from pydantic import BaseModel, Field
-
-
-_T = TypeVar("_T")
+from pydantic import BaseModel
 
 
-class CallbakDataEnum(str, Enum):
+class CallbackDataEnum(str, Enum):
     favorites = "favorites"
     translate_word = "favorite-word"
     save_favorite = "save-favorite"
@@ -35,9 +31,8 @@ class Query(BaseModel):
     text: str
 
 
-
 class BaseData(CallbackData, prefix="base"):
-    enum: CallbakDataEnum
+    enum: CallbackDataEnum
 
 
 class QueryCallBack(BaseData, prefix="query"):

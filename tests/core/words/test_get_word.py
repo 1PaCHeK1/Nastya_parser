@@ -16,7 +16,9 @@ async def test_get_word_from_db(
         session=session,
     )
 
-    assert sorted([w.lower() for w in translated_words]) == sorted([w.lower() for w in word.translate_words])
+    assert sorted([w.lower() for w in translated_words]) == sorted(
+        [w.lower() for w in word.translate_words]
+    )
 
 
 async def test_get_word_from_cache():

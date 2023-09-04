@@ -1,6 +1,5 @@
 from typing import Literal, TypeVar
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from functools import lru_cache
 
 
 TSettings = TypeVar("TSettings", bound=BaseSettings)
@@ -63,7 +62,6 @@ class BotSettings(BaseSettings):
     webhook_path: str
     webapp_host: str
     webapp_port: int
-
 
 
 class FastApiSettings(BaseSettings):

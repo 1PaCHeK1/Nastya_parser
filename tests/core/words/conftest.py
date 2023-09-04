@@ -14,7 +14,7 @@ async def word(
         translate_words=[
             "Привет",
             "Здравствуй",
-        ]
+        ],
     )
     await word_service.append_word(word, session)
     return word

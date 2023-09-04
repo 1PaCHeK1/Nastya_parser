@@ -1,4 +1,3 @@
-
 import os
 import asyncio
 import pathlib
@@ -14,9 +13,6 @@ from sqlalchemy.engine import Connection, Engine
 
 from alembic import command, config
 
-from settings import get_settings, Settings
-from core.containers import Container
-
 from db.models import Language
 
 
@@ -31,24 +27,8 @@ def event_loop():
 
 
 @pytest.fixture(scope="session")
-def db_config() -> Settings:
-    env = "test"
-    os.environ["ENV"] = env
-    db_config = get_settings(environment=env)
-    return db_config
-
-
-@pytest.fixture(scope="session")
-def db_container(db_config: Settings) -> Container:
-    _container = Container()
-    _container.config.from_pydantic(db_config)
-    _container.wire(packages=["tests", "core", "bot", "parsers"])
-    return _container
-
-
-@pytest.fixture(scope="session")
-def database_url(db_config: Settings) -> str:
-    return db_config.db_url
+def database_url() -> str:
+    return os.environ["TEST_DATABASE_URL"]
 
 
 @pytest.fixture(scope="session")
@@ -63,10 +43,8 @@ def engine(database_url: str) -> Engine:
 
 @pytest.fixture(scope="session")
 async def create_database(
-    db_config: Settings,
+    database_url: str,
 ) -> Iterable[None]:
-    database_url = f"postgresql://{db_config.db_user}:{db_config.db_pass}@{db_config.db_host}:{db_config.db_port}/{db_config.db_name}"  # noqa: E501
-
     if not sqlalchemy_utils.database_exists(database_url):
         sqlalchemy_utils.create_database(database_url)
 
@@ -125,8 +103,5 @@ def load_database(
 
 
 @pytest.fixture()
-def session(
-    raw_session: Session,
-    load_database: None
-) -> Session:
+def session(raw_session: Session, load_database: None) -> Session:
     yield raw_session

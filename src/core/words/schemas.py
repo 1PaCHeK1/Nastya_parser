@@ -1,5 +1,4 @@
 from core.dto.base import BaseDto
-from pydantic import BaseModel
 
 
 class WordCreateSchema(BaseDto):

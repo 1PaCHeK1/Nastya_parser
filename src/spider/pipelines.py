@@ -5,23 +5,18 @@
 
 
 # useful for handling different item types with a single interface
-from dependency_injector.wiring import inject, Provide
+from typing import Annotated
 
-from core.containers import Container
 from core.words.services import WordService
 from core.words.schemas import WordCreateSchema
-
+from aioinject import inject, Inject
 from .items import WordItem
 
 
 class SpiderPipeline:
-    
     @inject
     async def process_item(
-        self, 
-        item: WordItem,
-        spider,
-        word_service: WordService = Provide[Container.word_service]
+        self, item: WordItem, spider, word_service: Annotated[WordService, Inject]
     ):
         await word_service.append_word(
             WordCreateSchema(

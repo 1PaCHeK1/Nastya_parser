@@ -4,9 +4,6 @@ from .translate_word import TranslateWordService
 
 
 class ParserContainer(containers.DeclarativeContainer):
-    
     # config = providers.Resource(DevSettings)
-    
-    translate_service = providers.Factory(
-        TranslateWordService
-    )
+
+    translate_service = providers.Factory(TranslateWordService)

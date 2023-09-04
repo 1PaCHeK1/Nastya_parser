@@ -1,16 +1,13 @@
-from contextlib import AbstractContextManager
 import re
-from typing import Callable
+from typing import Annotated
 from aiogram import types, Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from dependency_injector.wiring import Provide, inject
 from sqlalchemy.orm import Session
-
-from core.containers import Container
+from aioinject import inject, Inject
 from core.users.schemas import UserCreateSchema
 from core.users.services import UserTgService
-from bot.keyboards.callback_enum import BaseData, CallbakDataEnum
+from bot.keyboards.callback_enum import BaseData, CallbackDataEnum
 from bot.core import texts
 
 from bot.states.registration import RegistrationState
@@ -34,7 +31,7 @@ async def registration_message(
         await message.answer(texts.already_registered_text)
 
 
-@router.callback_query( BaseData.filter(F.enum == CallbakDataEnum.registration.value))
+@router.callback_query(BaseData.filter(F.enum == CallbackDataEnum.registration.value))
 async def registration_callback(data: types.callback_query.CallbackQuery):
     await start_registration(data.message)
 
@@ -71,7 +68,7 @@ async def username_registration(message: types.Message, state: FSMContext):
 async def email_registration(
     message: types.Message,
     state: FSMContext,
-    user_service: UserTgService = Provide[Container.user_service]
+    user_service: Annotated[UserTgService, Inject],
 ):
     await message.reply(texts.invalid_registration_email_text)
 
@@ -81,21 +78,20 @@ async def email_registration(
 async def email_registration(
     message: types.Message,
     state: FSMContext,
-    user_service: UserTgService = Provide[Container.user_service],
-    get_session: Callable[..., AbstractContextManager[Session]] = Provide[Container.database.provided.session],
+    user_service: Annotated[UserTgService, Inject],
+    session: Annotated[Session, Inject],
 ):
     async with state.proxy() as data:
         data["email"] = message.text
         result = data.as_dict()
-    with get_session() as session:
-        await user_service.create_user(
-            UserCreateSchema(
-                username=result["username"],
-                email=result["email"],
-                tg_id=message.from_id,
-            ),
-            session,
-        )
+    await user_service.create_user(
+        UserCreateSchema(
+            username=result["username"],
+            email=result["email"],
+            tg_id=message.from_id,
+        ),
+        session,
+    )
 
     await message.answer(texts.finish_registration_text)
     await state.finish()

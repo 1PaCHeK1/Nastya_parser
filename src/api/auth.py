@@ -31,7 +31,6 @@ async def authenticate(
     session: Annotated[Session, Inject],
     token: AuthToken,
 ) -> Token:
-
     if token is None:
         raise _unauthorized_exc
 

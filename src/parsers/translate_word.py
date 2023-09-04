@@ -11,6 +11,7 @@ class TranslateNotFoundException(Exception):
 
 ReturnType = TypeVar("ReturnType")
 
+
 def async_to_sync(
     callable_function: Callable[[], Coroutine[Any, Any, ReturnType]]
 ) -> ReturnType:  # type: ignore[return-value]
@@ -22,7 +23,6 @@ def async_to_sync(
 
 
 class TranslateWordService:
-
     def __init__(self) -> None:
         self.session = aiohttp.ClientSession()
 
@@ -34,10 +34,12 @@ class TranslateWordService:
         #     return translate.split(", ")
         page = requests.get("http://wooordhunt.ru/word/" + word)
         if page.status_code == 200:
-            soup = bs4.BeautifulSoup(page.text, 'html.parser')
-            translations = soup.find('div', class_="t_inline_en") or soup.find('p', class_="t_inline")
+            soup = bs4.BeautifulSoup(page.text, "html.parser")
+            translations = soup.find("div", class_="t_inline_en") or soup.find(
+                "p", class_="t_inline"
+            )
             if translations:
-                return translations.text.split(', ')
+                return translations.text.split(", ")
         # return []
         raise TranslateNotFoundException
 

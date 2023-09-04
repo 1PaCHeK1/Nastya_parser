@@ -19,10 +19,6 @@ class PostRepository:
             .subquery()
         )
 
-        stmt = (
-            select(Post)
-            .join(subquery, Post.id == subquery.c.id)
-            .order_by(Post.id)
-        )
+        stmt = select(Post).join(subquery, Post.id == subquery.c.id).order_by(Post.id)
 
         return self.session.scalars(stmt).all()

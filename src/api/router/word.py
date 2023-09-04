@@ -44,11 +44,11 @@ async def get_languages() -> list[str]:
 async def insert_word(
     body: WordInsertWithTranslateSchema,
     session: Annotated[Session, Inject],
-    word_service: Annotated[WordService, Inject]
+    word_service: Annotated[WordService, Inject],
 ) -> None:
     word = {
-        'word': body.text,
-        'translate_words': [translate.text for translate in body.translates]
+        "word": body.text,
+        "translate_words": [translate.text for translate in body.translates],
     }
     await word_service.append_word(WordCreateSchema.parse_obj(word), session)
 

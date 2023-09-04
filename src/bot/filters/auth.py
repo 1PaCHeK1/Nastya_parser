@@ -1,20 +1,16 @@
-from contextlib import AbstractContextManager
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any, Literal
 from aiogram import types
 from aiogram.filters import Filter
 from aiogram.fsm.context import FSMContext
-from aioinject import Inject
-from aioinject.ext.fastapi import inject as ai_inject
+from aioinject import inject, Inject
 
 from sqlalchemy.orm import Session
 
-from core.containers import Container
 from core.users.services import UserTgService
 
 
-
 class IdentifyUserFilter(Filter):
-    @ai_inject
+    @inject
     async def __call__(
         self,
         message: types.Message | types.CallbackQuery,
@@ -23,8 +19,7 @@ class IdentifyUserFilter(Filter):
         state: FSMContext = None,
         *args,
         **kwargs,
-    ) -> dict[str, Any] | bool:
-
+    ) -> dict[str, Any]:
         user_id = message.from_user.id
         user = await user_service.get_user_by_tg_id(user_id, session)
 
@@ -34,17 +29,16 @@ class IdentifyUserFilter(Filter):
 
 
 class RequiredUserFilter(Filter):
-    @ai_inject
+    @inject
     async def __call__(
         self,
         message: types.Message | types.CallbackQuery,
         user_service: Annotated[UserTgService, Inject],
         session: Annotated[Session, Inject],
-        config: Any,
         state: FSMContext = None,
         *args,
         **kwargs,
-    ) -> dict[str, Any] | bool:
+    ) -> dict[str, Any] | Literal[False]:
         user_id = message.from_user.id
         user = await user_service.get_user_by_tg_id(user_id, session)
 

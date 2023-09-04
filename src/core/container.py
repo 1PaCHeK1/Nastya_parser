@@ -62,5 +62,4 @@ def create_container() -> Container:
     container.register(Callable(GetUnreadedPostQuery))
     container.register(Callable(PostRepository))
 
-
     return container

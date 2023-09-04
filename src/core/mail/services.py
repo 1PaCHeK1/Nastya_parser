@@ -10,10 +10,7 @@ class MailService:
     ) -> None:
         self._channel = channel
 
-    async def send(
-        self,
-        message: EmailMessageDto
-    ) -> None:
+    async def send(self, message: EmailMessageDto) -> None:
         json_message = message.model_dump_json()
         await self._channel.default_exchange.publish(
             aio_pika.Message(json_message.encode()),

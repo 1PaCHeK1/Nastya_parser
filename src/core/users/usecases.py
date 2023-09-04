@@ -36,4 +36,3 @@ class RegistrationFromApiUseCase:
         print(self._hash.decode_user(token))
 
         return user
-

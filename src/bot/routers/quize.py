@@ -1,14 +1,12 @@
-import json
-from typing import Annotated, Callable
-from aiogram import Router, types, F
+from typing import Annotated
+from aiogram import Router, types
 from aiogram.filters import Command
-from aiogram.filters import CommandObject
 from aiogram.fsm.context import FSMContext
 from aioinject import Inject
 from bot.keyboards.inline import generate_answer_keyboard, generate_question_keyboard
-from bot.utils.auth import RequiredUserFilter
+from bot.filters.auth import RequiredUserFilter
 from core.words.schemas import QuestionType
-from aioinject.ext.fastapi import inject as ai_inject
+from aioinject.ext.fastapi import inject
 from sqlalchemy.orm import Session
 from aiogram.methods import EditMessageReplyMarkup
 from sqlalchemy import update, select
@@ -16,16 +14,13 @@ from sqlalchemy import update, select
 from core.users.schemas import UserSchema
 from core.words.services import QuizeService, QuizeFilter
 from db.models import QuizQuestion, QuizTheme
-from bot.keyboards.callback_enum import BaseData, CallbakDataEnum, QueryCallBack
+from bot.keyboards.callback_enum import QueryCallBack
 
 
 router = Router()
 
 
-async def send_question(
-    message: types.Message,
-    question: QuizQuestion
-) -> None:
+async def send_question(message: types.Message, question: QuizQuestion) -> None:
     await message.answer(
         question.question,
         reply_markup=generate_question_keyboard(question),
@@ -36,7 +31,7 @@ async def send_question(
     Command("get_game_settings", ignore_case=True),
     RequiredUserFilter(),
 )
-@ai_inject
+@inject
 async def get_game_settings(
     message: types.Message,
     user: UserSchema,
@@ -48,7 +43,9 @@ async def get_game_settings(
         session.add(q_filter)
         session.flush()
     if q_filter.theme_id:
-        theme = session.scalar(select(QuizTheme).where(QuizTheme.id==q_filter.theme_id))
+        theme = session.scalar(
+            select(QuizTheme).where(QuizTheme.id == q_filter.theme_id)
+        )
         await message.answer("Тема:" + str(theme.name))
     else:
         await message.answer("Тема не выбрана")
@@ -56,14 +53,16 @@ async def get_game_settings(
         await message.answer("Уровень: " + str(q_filter.level))
     else:
         await message.answer("Уровень не выбран")
-    await message.answer("Максимальное количество вопросов: " + str(q_filter.max_question))
+    await message.answer(
+        "Максимальное количество вопросов: " + str(q_filter.max_question)
+    )
 
 
 @router.message(
     Command("change_maximum_quantity_of_questions", ignore_case=True),
     RequiredUserFilter(),
 )
-@ai_inject
+@inject
 async def change_maximum_quantity_of_questions(
     message: types.Message,
     user: UserSchema,
@@ -76,20 +75,27 @@ async def change_maximum_quantity_of_questions(
         session.flush()
 
     if len(message.text.split()) != 2:
-        await message.answer("Комманда введена неправильно, напишите /change_maximum_quantity_of_questions <кол-во вопросов>")
+        await message.answer(
+            "Комманда введена неправильно, напишите /change_maximum_quantity_of_questions <кол-во вопросов>"
+        )
     else:
         try:
-            stmt = update(QuizeFilter).where(QuizeFilter.user.id==user.id).values(max_question=int(message.text.split()[1]))
-            await message.answer('Теперь максимальное количество вопросов равно ' + message.text.split()[1])
+            update(QuizeFilter).where(QuizeFilter.user.id == user.id).values(
+                max_question=int(message.text.split()[1])
+            )
+            await message.answer(
+                "Теперь максимальное количество вопросов равно "
+                + message.text.split()[1]
+            )
         except:
-            await message.answer('Проверьте правильность ввода команды')
+            await message.answer("Проверьте правильность ввода команды")
 
 
 @router.message(
     Command("change_theme", ignore_case=True),
     RequiredUserFilter(),
 )
-@ai_inject
+@inject
 async def change_theme(
     message: types.Message,
     user: UserSchema,
@@ -102,22 +108,32 @@ async def change_theme(
         session.flush()
 
     if len(message.text.split()) != 2:
-        await message.answer("Комманда введена неправильно, напишите /change_theme <тема>")
+        await message.answer(
+            "Комманда введена неправильно, напишите /change_theme <тема>"
+        )
     else:
         try:
-            theme = session.scalar(select(QuizTheme).where(QuizTheme.name==message.text.split()[1]))
-            stmt = update(QuizeFilter).where(QuizeFilter.user.id==user.id).values(theme_id=theme.id)
+            theme = session.scalar(
+                select(QuizTheme).where(QuizTheme.name == message.text.split()[1])
+            )
+            stmt = (
+                update(QuizeFilter)
+                .where(QuizeFilter.user.id == user.id)
+                .values(theme_id=theme.id)
+            )
             session.execute(stmt)
-            await message.answer('Теперь тема - ' + theme.name)
+            await message.answer("Теперь тема - " + theme.name)
         except:
-            await message.answer('Комманда введена неправильно или такой темы не существует')
+            await message.answer(
+                "Комманда введена неправильно или такой темы не существует"
+            )
 
 
 @router.message(
     Command("quize", ignore_case=True),
     RequiredUserFilter(),
 )
-@ai_inject
+@inject
 async def start_game(
     message: types.Message,
     user: UserSchema,
@@ -145,20 +161,19 @@ async def start_game(
 @router.callback_query(
     RequiredUserFilter(),
 )
-@ai_inject
+@inject
 async def send_answer(
     query: types.CallbackQuery,
     user: UserSchema,
     state: FSMContext,
 ) -> None:
-
     data = await state.get_data()
     query_data = QueryCallBack.unpack(query.data)
     data["answers"].append(query_data.data)
     await EditMessageReplyMarkup(
         chat_id=query.message.chat.id,
         message_id=query.message.message_id,
-        reply_markup=generate_answer_keyboard("Ответ засчитан!")
+        reply_markup=generate_answer_keyboard("Ответ засчитан!"),
     )
     if len(data["questions"]) > data["position"] + 1:
         next_question = QuestionType.parse_obj(data["questions"][data["position"] + 1])

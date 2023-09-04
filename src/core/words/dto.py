@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from sqlalchemy import true, and_, ColumnElement
+from sqlalchemy import and_, ColumnElement
 from db.models import Word, LanguageEnum
-
 
 
 @dataclass

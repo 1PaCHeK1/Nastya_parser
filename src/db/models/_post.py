@@ -1,23 +1,26 @@
 from __future__ import annotations
 from datetime import datetime
 
-import enum
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from sqlalchemy import ForeignKey, Enum
+from sqlalchemy import ForeignKey
 from db.base import Base
 from db.types import int_pk, text
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from db.models import User
+    pass
 
 
 class PostTags(Base):
     __tablename__ = "posttags"
 
-    tag_id: Mapped[int] = mapped_column(ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True)
-    post_id: Mapped[int] = mapped_column(ForeignKey("post.id", ondelete="CASCADE"), primary_key=True)
+    tag_id: Mapped[int] = mapped_column(
+        ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True
+    )
+    post_id: Mapped[int] = mapped_column(
+        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class Post(Base):
@@ -40,8 +43,12 @@ class Post(Base):
 class ViewedPost(Base):
     __tablename__ = "viewedpost"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    post_id: Mapped[int] = mapped_column(ForeignKey("post.id", ondelete="CASCADE"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    post_id: Mapped[int] = mapped_column(
+        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class Tag(Base):

@@ -4,6 +4,7 @@ from .auth import router as auth_router
 from .word import router as word_router
 from .user import router as user_router
 from .post import router as post_router
+
 router = APIRouter()
 
 router.include_router(auth_router)

@@ -1,9 +1,7 @@
 from typing import Annotated
-from aiogram import Router, types, F, Bot
+from aiogram import Router, types, Bot
 from aiogram.filters import Command
-from aioinject import Inject
-from aioinject.ext.fastapi import inject as ai_inject
-
+from aioinject import inject, Inject
 from core.image.services import ImageProcessService
 
 
@@ -11,11 +9,11 @@ router = Router()
 
 
 @router.message(Command("get-text"))
-@ai_inject
+@inject
 async def get_text_from_image_handler(
     message: types.Message,
     bot: Bot,
-    image_process: Annotated[ImageProcessService, Inject]
+    image_process: Annotated[ImageProcessService, Inject],
 ):
     photos = message.photo
     if photos == []:

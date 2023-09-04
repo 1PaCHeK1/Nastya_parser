@@ -41,10 +41,12 @@ requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
 [tool.pdm.scripts]
-lint = {composite=[
-    "ruff src tests",
-    "mypy src tests",
-]}
+lint = { composite = [
+    "ruff check . --fix --show-fixes",
+    "black .",
+    "ruff check . --fix --show-fixes",
+    "mypy .",
+] }
 
 
 [tool.pdm]

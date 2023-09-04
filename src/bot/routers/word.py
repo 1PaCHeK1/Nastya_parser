@@ -1,15 +1,19 @@
-from contextlib import AbstractContextManager
 import json
-from typing import Annotated, Callable
+from typing import Annotated
 from aiogram import types, Router
 from aiogram.filters import Command
 from aioinject import Inject
-from bot.utils.auth import IdentifyUserFilter, RequiredUserFilter
+from bot.filters.auth import IdentifyUserFilter, RequiredUserFilter
 from core.users.schemas import UserSchema
-from aioinject import inject as ai_inject
+from aioinject import inject
 from sqlalchemy.orm import Session
 
-from bot.keyboards.callback_enum import CallbackData, CallbakDataEnum, ObjectId, PageNavigator, Query
+from bot.keyboards.callback_enum import (
+    CallbackData,
+    CallbackDataEnum,
+    ObjectId,
+    PageNavigator,
+)
 
 import bot.keyboards.inline as key_inline
 
@@ -21,12 +25,12 @@ from core.words.services import WordService
 router = Router()
 
 
-@ai_inject
+@inject
 async def get_translate(
     user: UserSchema,
     *,
-    text: str|None=None,
-    word_id:int|None=None,
+    text: str | None = None,
+    word_id: int | None = None,
     word_service: Annotated[WordService, Inject],
     session: Annotated[Session, Inject],
 ) -> list[str]:
@@ -44,14 +48,13 @@ async def get_favorites(
 ):
     fav_words = await get_list_favorite(user)
     markup = key_inline.generate_favorite_keyboard(fav_words)
-    await message.answer(f"Список избранных слов", reply_markup=markup)
+    await message.answer("Список избранных слов", reply_markup=markup)
 
 
 @router.message(Command("list"))
-@ai_inject
+@inject
 async def get_list_word(
-    message: types.Message,
-    redis_service: Annotated[RedisService, Inject]
+    message: types.Message, redis_service: Annotated[RedisService, Inject]
 ):
     texts = (
         "\n".join(await redis_service.get_translations(message.from_id))
@@ -65,20 +68,23 @@ async def callback(
     callback_info: types.callback_query.CallbackQuery,
     user: UserSchema,
 ):
-
     serialize_data = json.loads(callback_info.data)
     callback_data = CallbackData[dict].parse_obj(serialize_data)
-    match CallbakDataEnum(callback_data.enum):  # noqa: E999
-        case CallbakDataEnum.save_favorite:
+    match CallbackDataEnum(callback_data.enum):  # noqa: E999
+        case CallbackDataEnum.save_favorite:
             await add_favorite(callback_info, user)
-        case CallbakDataEnum.remove_favorite:
+        case CallbackDataEnum.remove_favorite:
             await remove_favorite(callback_info, user)
-        case CallbakDataEnum.next_page | CallbakDataEnum.prev_page:
+        case CallbackDataEnum.next_page | CallbackDataEnum.prev_page:
             callback_data = CallbackData[PageNavigator].parse_obj(serialize_data)
-            favorite_list = await get_list_favorite(user, callback_data.data.page_number)
-            markup = key_inline.generate_favorite_keyboard(favorite_list, callback_data.data.page_number)
+            favorite_list = await get_list_favorite(
+                user, callback_data.data.page_number
+            )
+            markup = key_inline.generate_favorite_keyboard(
+                favorite_list, callback_data.data.page_number
+            )
             await callback_info.message.edit_reply_markup(markup)
-        case CallbakDataEnum.translate_word:
+        case CallbackDataEnum.translate_word:
             callback_data = CallbackData[ObjectId].parse_obj(serialize_data)
             words = await get_translate(
                 word_id=callback_data.data.id,
@@ -88,9 +94,9 @@ async def callback(
             await callback_info.message.edit_reply_markup(markup)
 
 
-@ai_inject
+@inject
 async def add_favorite(
-    data:types.callback_query.CallbackQuery,
+    data: types.callback_query.CallbackQuery,
     user: UserSchema,
     word_service: Annotated[WordService, Inject],
     session: Annotated[Session, Inject],
@@ -99,13 +105,15 @@ async def add_favorite(
     translate = data.message.text
 
     await word_service.add_favorite(word, user, session)
-    await data.message.answer(f"Слово {word} записано в словарь с переводом {translate}")  # noqa: E501
+    await data.message.answer(
+        f"Слово {word} записано в словарь с переводом {translate}"
+    )  # noqa: E501
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
-@ai_inject
+@inject
 async def remove_favorite(
-    data:types.callback_query.CallbackQuery,
+    data: types.callback_query.CallbackQuery,
     user: UserSchema,
     word_service: Annotated[WordService, Inject],
     session: Annotated[Session, Inject],
@@ -113,11 +121,13 @@ async def remove_favorite(
     word = data.message.reply_to_message.text
     translate = data.message.text
     await word_service.remove_favorite(word, user, session)
-    await data.message.answer(f"Слово {word} удалено из словаря с переводом {translate}")  # noqa: E501
+    await data.message.answer(
+        f"Слово {word} удалено из словаря с переводом {translate}"
+    )  # noqa: E501
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
 
 
-@ai_inject
+@inject
 async def get_list_favorite(
     word_service: Annotated[WordService, Inject],
     session: Annotated[Session, Inject],
@@ -129,7 +139,7 @@ async def get_list_favorite(
 
 
 @router.message(IdentifyUserFilter())
-@ai_inject
+@inject
 async def translate_word(
     message: types.Message,
     user: UserSchema,

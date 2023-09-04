@@ -15,7 +15,7 @@ class UserCreateSchema(BaseModel):
 
     username: str
     email: str = Field(pattern=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
-    tg_id: int = Field(gt=10*9-1, lt=10**10)
+    tg_id: int = Field(gt=10 * 9 - 1, lt=10**10)
 
 
 class UserUpdateSchema(BaseModel):
@@ -23,7 +23,7 @@ class UserUpdateSchema(BaseModel):
 
     username: str
     email: str = Field(pattern=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
-    tg_id: int = Field(gt=10*9-1, lt=10**10)
+    tg_id: int = Field(gt=10 * 9 - 1, lt=10**10)
 
 
 class UserRegistrationApiDto(BaseModel):
@@ -34,9 +34,7 @@ class UserRegistrationApiDto(BaseModel):
     password: str
 
 
-
 class UserRegistrationTgDto(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    tg_id: int = Field(gt=10*9-1, lt=10**10)
-
+    tg_id: int = Field(gt=10 * 9 - 1, lt=10**10)

@@ -3,7 +3,6 @@ import langid
 
 import sqlalchemy as sa
 
-from sqlalchemy.dialects import postgresql
 from collections.abc import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
@@ -17,6 +16,7 @@ from parsers.translate_word import TranslateWordService
 
 
 from db.models import Word, FavoriteWord, WordTranslate
+
 
 # redis -> database -> wooordhunt
 class WordService:
@@ -48,14 +48,23 @@ class WordService:
         TranslateWord = sa.orm.util.AliasedClass(Word)
         words = session.scalars(
             select(Word.text, TranslateWord.text.label("translate_word"))
-            .join(WordTranslate,
-                (Word.id==WordTranslate.word_from_id) | (Word.id==WordTranslate.word_to_id)
+            .join(
+                WordTranslate,
+                (Word.id == WordTranslate.word_from_id)
+                | (Word.id == WordTranslate.word_to_id),
             )
-            .join(TranslateWord,
-                ((TranslateWord.id==WordTranslate.word_from_id) & (Word.id==WordTranslate.word_to_id))
-                | ((Word.id==WordTranslate.word_from_id) & (TranslateWord.id==WordTranslate.word_to_id))
+            .join(
+                TranslateWord,
+                (
+                    (TranslateWord.id == WordTranslate.word_from_id)
+                    & (Word.id == WordTranslate.word_to_id)
+                )
+                | (
+                    (Word.id == WordTranslate.word_from_id)
+                    & (TranslateWord.id == WordTranslate.word_to_id)
+                ),
             )
-            .where(Word.id==word_id)
+            .where(Word.id == word_id)
         )
         return [word.translate_word for word in words]
 
@@ -74,18 +83,26 @@ class WordService:
         TranslateWord = sa.orm.util.AliasedClass(Word)
         translate_words = session.scalars(
             select(Word.text, TranslateWord.text.label("translate_word"))
-            .join(WordTranslate,
-                (Word.id==WordTranslate.word_from_id) | (Word.id==WordTranslate.word_to_id)
+            .join(
+                WordTranslate,
+                (Word.id == WordTranslate.word_from_id)
+                | (Word.id == WordTranslate.word_to_id),
             )
-            .join(TranslateWord,
-                ((TranslateWord.id==WordTranslate.word_from_id) & (Word.id==WordTranslate.word_to_id))
-                | ((Word.id==WordTranslate.word_from_id) & (TranslateWord.id==WordTranslate.word_to_id))
+            .join(
+                TranslateWord,
+                (
+                    (TranslateWord.id == WordTranslate.word_from_id)
+                    & (Word.id == WordTranslate.word_to_id)
+                )
+                | (
+                    (Word.id == WordTranslate.word_from_id)
+                    & (TranslateWord.id == WordTranslate.word_to_id)
+                ),
             )
-            .where(Word.text==word)
+            .where(Word.text == word)
         )
         translate_words = [
-            translate_word.translate_word
-            for translate_word in translate_words
+            translate_word.translate_word for translate_word in translate_words
         ]
 
         if translate_words == []:
@@ -119,14 +136,13 @@ class WordService:
             session.add(translate)
             session.flush()
             wordtranslate = WordTranslate(
-                word_from_id=main_word.id,
-                word_to_id=translate.id
+                word_from_id=main_word.id, word_to_id=translate.id
             )
             session.add(wordtranslate)
             session.flush()
 
     async def add_favorite(self, word_text: str, user: UserSchema, session: Session):
-        word = session.scalar(select(Word).where(Word.text==word_text))
+        word = session.scalar(select(Word).where(Word.text == word_text))
         favoriteword = FavoriteWord(
             user_id=user.id,
             word_id=word.id,
@@ -135,16 +151,23 @@ class WordService:
         session.flush()
 
     async def remove_favorite(self, word: str, user: UserSchema, session: Session):
-        word = session.scalar(select(Word).where(Word.text==word))
-        delete(FavoriteWord).where(FavoriteWord.word_id==word.id, FavoriteWord.user_id==user.id)
+        word = session.scalar(select(Word).where(Word.text == word))
+        delete(FavoriteWord).where(
+            FavoriteWord.word_id == word.id, FavoriteWord.user_id == user.id
+        )
         session.commit()
 
-    async def get_favorite(self, user: UserSchema, page_number: int, session: Session) -> list[Word]:
+    async def get_favorite(
+        self, user: UserSchema, page_number: int, session: Session
+    ) -> list[Word]:
         words = session.scalars(
             select(Word)
-            .join(FavoriteWord, (Word.id==FavoriteWord.word_id) & (FavoriteWord.user_id==user.id))
+            .join(
+                FavoriteWord,
+                (Word.id == FavoriteWord.word_id) & (FavoriteWord.user_id == user.id),
+            )
             .order_by(FavoriteWord.id)
-            .offset(self.page_size*page_number)
+            .offset(self.page_size * page_number)
             .limit(self.page_size)
         )
         return [word for word in words]
@@ -155,6 +178,7 @@ class WordService:
 # JOIN wordtranslates ON words.id = wordtranslates.word_from_id OR words.id = wordtranslates.word_to_id
 # JOIN words AS words_1 ON words_1.id = wordtranslates.word_from_id AND words.id = wordtranslates.word_from_id OR words.id = wordtranslates.word_from_id AND words_1.id = wordtranslates.word_from_id
 # WHERE words.text = %(text_1)s
+
 
 class QuizeFilter(BaseModel):
     user: UserSchema
@@ -184,11 +208,14 @@ class QuizeService:
         quizQuestions = list(session.query(QuizQuestion.id).where(params).all())
         if quizQuestions == []:
             return []
-        selected_games = random.sample(quizQuestions, min(len(quizQuestions), quize_filter.max_question))
+        selected_games = random.sample(
+            quizQuestions, min(len(quizQuestions), quize_filter.max_question)
+        )
 
         return (
             session.scalars(
-                select(QuizQuestion)
-                .where(QuizQuestion.id.in_([i.id for i in selected_games]))
+                select(QuizQuestion).where(
+                    QuizQuestion.id.in_([i.id for i in selected_games])
+                )
             )
         ).all()

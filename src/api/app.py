@@ -12,7 +12,7 @@ from api.handlers import handle_validation_errors
 def create_fastapi() -> FastAPI:
     sentry_init()
 
-    api_settings = get_settings(FastApiSettings)
+    get_settings(FastApiSettings)
 
     app = FastAPI()
     app.container = create_container()

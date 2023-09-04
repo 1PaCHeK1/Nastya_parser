@@ -1,11 +1,10 @@
 from __future__ import annotations
-from datetime import datetime
 
 import enum
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from sqlalchemy import ForeignKey, Enum
 from db.base import Base
-from db.types import int_pk, text
+from db.types import int_pk
 
 from typing import TYPE_CHECKING
 
@@ -50,8 +49,12 @@ class Word(Base):
 class WordTranslate(Base):
     __tablename__ = "wordtranslates"
 
-    word_from_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
-    word_to_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
+    word_from_id: Mapped[int] = mapped_column(
+        ForeignKey("words.id", ondelete="CASCADE"), primary_key=True
+    )
+    word_to_id: Mapped[int] = mapped_column(
+        ForeignKey("words.id", ondelete="CASCADE"), primary_key=True
+    )
 
     # word_from: Mapped[Word] = relationship(
     #     Word,
@@ -90,7 +93,9 @@ class QuizQuestion(Base):
     id: Mapped[int_pk]
 
     question: Mapped[str]
-    theme_id: Mapped[int] = mapped_column(ForeignKey('quiztheme.id', ondelete="CASCADE"))
+    theme_id: Mapped[int] = mapped_column(
+        ForeignKey("quiztheme.id", ondelete="CASCADE")
+    )
     answer_one: Mapped[str]
     answer_two: Mapped[str]
     answer_three: Mapped[str]
