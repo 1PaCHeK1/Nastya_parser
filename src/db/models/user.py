@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from datetime import date
-from sqlalchemy.orm import relationship, mapped_column, Mapped
+from typing import TYPE_CHECKING
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
-from db.types import str_128, int_pk
+from db.types import int_pk, str_128
 
 if TYPE_CHECKING:
     from db.models import Word

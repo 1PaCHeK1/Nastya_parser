@@ -1,16 +1,17 @@
 import re
 from typing import Annotated
-from aiogram import types, Router, F
+
+from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aioinject import Inject, inject
 from sqlalchemy.orm import Session
-from aioinject import inject, Inject
+
+from bot.core import texts
+from bot.keyboards.callback_enum import BaseData, CallbackDataEnum
+from bot.states.registration import RegistrationState
 from core.users.schemas import UserCreateSchema
 from core.users.services import UserTgService
-from bot.keyboards.callback_enum import BaseData, CallbackDataEnum
-from bot.core import texts
-
-from bot.states.registration import RegistrationState
 
 from .commands import start_registration
 
@@ -65,7 +66,7 @@ async def username_registration(message: types.Message, state: FSMContext):
     RegistrationState.email,
 )
 @inject
-async def email_registration(
+async def invalid_email_registration(
     message: types.Message,
     state: FSMContext,
     user_service: Annotated[UserTgService, Inject],

@@ -1,11 +1,10 @@
-from typing import BinaryIO
-from PIL import Image, ImageFilter
-from contextlib import contextmanager
-
-import pytesseract
-
 import enum
 import tempfile
+from contextlib import contextmanager
+from typing import BinaryIO
+
+import pytesseract
+from PIL import Image, ImageFilter
 
 
 class LanguageEnum(enum.Enum):

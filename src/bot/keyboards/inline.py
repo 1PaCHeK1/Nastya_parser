@@ -1,4 +1,6 @@
 from aiogram import types
+
+from bot.core import texts
 from bot.keyboards.callback_enum import (
     BaseData,
     CallbackDataEnum,
@@ -6,9 +8,7 @@ from bot.keyboards.callback_enum import (
     NavigationCallback,
     QueryCallBack,
 )
-from bot.core import texts
 from db.models import QuizQuestion, RightAnswerEnum, Word
-
 
 add_favorite_keyboard = types.InlineKeyboardMarkup(
     inline_keyboard=[
@@ -16,9 +16,9 @@ add_favorite_keyboard = types.InlineKeyboardMarkup(
             types.InlineKeyboardButton(
                 text=texts.add_to_favourites_text,
                 callback_data=BaseData(enum=CallbackDataEnum.save_favorite).pack(),
-            )
+            ),
         ],
-    ]
+    ],
 )
 
 
@@ -30,9 +30,9 @@ remove_favorite_keyboard = types.InlineKeyboardMarkup(
                 callback_data=BaseData(
                     enum=CallbackDataEnum.remove_favorite,
                 ).pack(),
-            )
-        ]
-    ]
+            ),
+        ],
+    ],
 )
 
 no_auth_start_keyboard = types.InlineKeyboardMarkup(
@@ -43,14 +43,14 @@ no_auth_start_keyboard = types.InlineKeyboardMarkup(
                 callback_data=BaseData(
                     enum=CallbackDataEnum.registration,
                 ).pack(),
-            )
-        ]
-    ]
+            ),
+        ],
+    ],
 )
 
 
 def generate_favorite_keyboard(
-    favorite_words: list[Word], current_page: int = 0
+    favorite_words: list[Word], current_page: int = 0,
 ) -> types.InlineKeyboardMarkup:
     buttons = []
     for word in favorite_words:
@@ -61,7 +61,7 @@ def generate_favorite_keyboard(
                     enum=CallbackDataEnum.translate_word,
                     data=word.id,
                 ).pack(),
-            )
+            ),
         )
     buttons.extend(
         (
@@ -79,7 +79,7 @@ def generate_favorite_keyboard(
                     data=current_page + 1,
                 ).pack(),
             ),
-        )
+        ),
     )
 
     return types.InlineKeyboardMarkup(inline_keyboard=[[button] for button in buttons])
@@ -94,7 +94,7 @@ def generate_translate_keyboard(words: list[str]) -> types.InlineKeyboardMarkup:
                 callback_data=BaseData(
                     enum=CallbackDataEnum.noop,
                 ).pack(),
-            )
+            ),
         )
 
     return types.InlineKeyboardMarkup(inline_keyboard=[[button] for button in buttons])
@@ -132,6 +132,6 @@ def generate_answer_keyboard(answer: str):
                         enum=CallbackDataEnum.noop,
                     ).pack(),
                 ),
-            ]
-        ]
+            ],
+        ],
     )

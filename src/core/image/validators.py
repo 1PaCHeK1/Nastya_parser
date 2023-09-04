@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from fastapi import UploadFile
-from business_validator import Validator, ErrorSchema, validate
 
+from business_validator import ErrorSchema, Validator, validate
+from fastapi import UploadFile
 
 _AVAIBLES_CONTENT_TYPE = [
     "image/jpeg",

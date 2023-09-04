@@ -5,10 +5,10 @@ Revises: 7bfce6e58920
 Create Date: 2023-05-22 19:47:53.557797
 
 """
-from alembic import op
-from db.models import LanguageEnum
 import sqlalchemy as sa
+from alembic import op
 
+from db.models import LanguageEnum
 
 # revision identifiers, used by Alembic.
 revision = "308641f41bc2"
@@ -52,7 +52,7 @@ def upgrade() -> None:
                     if enum.name in languages_hashmap
                 ],
                 else_=LanguageEnum.ru.name,
-            )
+            ),
         )
         bind.execute(update_stmt)
 
@@ -83,7 +83,7 @@ def downgrade() -> None:
         "translates",
         sa.Column("id", sa.INTEGER(), autoincrement=True, nullable=False),
         sa.Column(
-            "from_language_id", sa.INTEGER(), autoincrement=False, nullable=False
+            "from_language_id", sa.INTEGER(), autoincrement=False, nullable=False,
         ),
         sa.Column("to_language_id", sa.INTEGER(), autoincrement=False, nullable=False),
         sa.ForeignKeyConstraint(

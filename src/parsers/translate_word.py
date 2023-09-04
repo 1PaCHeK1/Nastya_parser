@@ -1,5 +1,7 @@
 import asyncio
-from typing import Any, Callable, Coroutine, TypeVar
+from collections.abc import Callable, Coroutine
+from typing import Any, TypeVar
+
 import aiohttp
 import bs4
 import requests
@@ -13,7 +15,7 @@ ReturnType = TypeVar("ReturnType")
 
 
 def async_to_sync(
-    callable_function: Callable[[], Coroutine[Any, Any, ReturnType]]
+    callable_function: Callable[[], Coroutine[Any, Any, ReturnType]],
 ) -> ReturnType:  # type: ignore[return-value]
     loop = asyncio.get_event_loop()
     if loop.is_running():
@@ -36,7 +38,7 @@ class TranslateWordService:
         if page.status_code == 200:
             soup = bs4.BeautifulSoup(page.text, "html.parser")
             translations = soup.find("div", class_="t_inline_en") or soup.find(
-                "p", class_="t_inline"
+                "p", class_="t_inline",
             )
             if translations:
                 return translations.text.split(", ")

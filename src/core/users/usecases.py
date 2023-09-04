@@ -1,8 +1,7 @@
+from core.mail.dto import EmailMessageDto
 from core.mail.services import MailService
 from core.users.schemas import UserRegistrationApiDto
 from core.users.services import HashService, UserService
-from core.mail.dto import EmailMessageDto
-
 from db.models import User
 
 

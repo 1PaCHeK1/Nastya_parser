@@ -1,21 +1,18 @@
 import random
-import langid
-
-import sqlalchemy as sa
-
 from collections.abc import Sequence
-from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
+
+import langid
+import sqlalchemy as sa
 from pydantic import BaseModel
+from sqlalchemy import delete, select
+from sqlalchemy.orm import Session
+
+from core.caches.services import RedisService
 from core.users.schemas import UserSchema
 from core.words.dto import WordCoreFilter
 from core.words.schemas import WordCreateSchema
-from db.models import Word, LanguageEnum, QuizQuestion
-from core.caches.services import RedisService
+from db.models import FavoriteWord, LanguageEnum, QuizQuestion, Word, WordTranslate
 from parsers.translate_word import TranslateWordService
-
-
-from db.models import Word, FavoriteWord, WordTranslate
 
 
 # redis -> database -> wooordhunt
@@ -64,7 +61,7 @@ class WordService:
                     & (TranslateWord.id == WordTranslate.word_to_id)
                 ),
             )
-            .where(Word.id == word_id)
+            .where(Word.id == word_id),
         )
         return [word.translate_word for word in words]
 
@@ -99,7 +96,7 @@ class WordService:
                     & (TranslateWord.id == WordTranslate.word_to_id)
                 ),
             )
-            .where(Word.text == word)
+            .where(Word.text == word),
         )
         translate_words = [
             translate_word.translate_word for translate_word in translate_words
@@ -136,7 +133,7 @@ class WordService:
             session.add(translate)
             session.flush()
             wordtranslate = WordTranslate(
-                word_from_id=main_word.id, word_to_id=translate.id
+                word_from_id=main_word.id, word_to_id=translate.id,
             )
             session.add(wordtranslate)
             session.flush()
@@ -153,12 +150,12 @@ class WordService:
     async def remove_favorite(self, word: str, user: UserSchema, session: Session):
         word = session.scalar(select(Word).where(Word.text == word))
         delete(FavoriteWord).where(
-            FavoriteWord.word_id == word.id, FavoriteWord.user_id == user.id
+            FavoriteWord.word_id == word.id, FavoriteWord.user_id == user.id,
         )
         session.commit()
 
     async def get_favorite(
-        self, user: UserSchema, page_number: int, session: Session
+        self, user: UserSchema, page_number: int, session: Session,
     ) -> list[Word]:
         words = session.scalars(
             select(Word)
@@ -168,7 +165,7 @@ class WordService:
             )
             .order_by(FavoriteWord.id)
             .offset(self.page_size * page_number)
-            .limit(self.page_size)
+            .limit(self.page_size),
         )
         return [word for word in words]
 
@@ -209,13 +206,13 @@ class QuizeService:
         if quizQuestions == []:
             return []
         selected_games = random.sample(
-            quizQuestions, min(len(quizQuestions), quize_filter.max_question)
+            quizQuestions, min(len(quizQuestions), quize_filter.max_question),
         )
 
         return (
             session.scalars(
                 select(QuizQuestion).where(
-                    QuizQuestion.id.in_([i.id for i in selected_games])
-                )
+                    QuizQuestion.id.in_([i.id for i in selected_games]),
+                ),
             )
         ).all()

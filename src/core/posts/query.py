@@ -1,7 +1,8 @@
 from collections.abc import Sequence
-from .repository import PostRepository
 
-from db.models import User, Post
+from db.models import Post, User
+
+from .repository import PostRepository
 
 
 class GetUnreadedPostQuery:

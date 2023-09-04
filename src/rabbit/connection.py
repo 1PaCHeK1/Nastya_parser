@@ -1,6 +1,8 @@
-import aio_pika
 import contextlib
 from collections.abc import AsyncIterator
+
+import aio_pika
+
 from settings import RabbitSettings
 
 

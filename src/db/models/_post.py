@@ -1,12 +1,13 @@
 from __future__ import annotations
-from datetime import datetime
 
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from datetime import datetime
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from db.base import Base
 from db.types import int_pk, text
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     pass
@@ -16,10 +17,10 @@ class PostTags(Base):
     __tablename__ = "posttags"
 
     tag_id: Mapped[int] = mapped_column(
-        ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True
+        ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True,
     )
     post_id: Mapped[int] = mapped_column(
-        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True
+        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True,
     )
 
 
@@ -44,10 +45,10 @@ class ViewedPost(Base):
     __tablename__ = "viewedpost"
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True,
     )
     post_id: Mapped[int] = mapped_column(
-        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True
+        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True,
     )
 
 

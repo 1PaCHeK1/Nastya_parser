@@ -1,18 +1,16 @@
 import aioinject
-from bot.middlewares import AIOInjectMiddleware
-from settings import BotSettings
-
-from aiogram import Dispatcher, types, Bot
+from aiogram import Bot, Dispatcher, types
 from aiogram.fsm.storage.memory import MemoryStorage
 
-
+from bot.middlewares import AIOInjectMiddleware
 from bot.routers import (
-    registration_router,
+    image_router,
     other_router,
     quize_router,
+    registration_router,
     word_router,
-    image_router,
 )
+from settings import BotSettings
 
 
 async def on_startup(bot: Bot, dispatcher: Dispatcher):
@@ -23,7 +21,7 @@ async def on_startup(bot: Bot, dispatcher: Dispatcher):
             types.BotCommand(command="favorites", description="Избранные"),
             types.BotCommand(command="settings", description="Настройки"),
             types.BotCommand(command="list", description="Случайные слова"),
-        ]
+        ],
     )
 
 
@@ -46,7 +44,7 @@ def create_dispatcher(container: aioinject.Container) -> Dispatcher:
 
     dp.message.outer_middleware.register(AIOInjectMiddleware(container=container))
     dp.callback_query.outer_middleware.register(
-        AIOInjectMiddleware(container=container)
+        AIOInjectMiddleware(container=container),
     )
 
     dp.include_routers(

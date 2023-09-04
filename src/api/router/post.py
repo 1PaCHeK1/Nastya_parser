@@ -1,10 +1,11 @@
 from typing import Annotated
-from api.auth import Authenticate
-from fastapi import APIRouter
+
 from aioinject import Inject
 from aioinject.ext.fastapi import inject
-from core.posts.query import GetUnreadedPostQuery
+from fastapi import APIRouter
 
+from api.auth import Authenticate
+from core.posts.query import GetUnreadedPostQuery
 
 router = APIRouter(prefix="/posts")
 

@@ -1,21 +1,21 @@
 from typing import Annotated
+
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aioinject import Inject
-from bot.keyboards.inline import generate_answer_keyboard, generate_question_keyboard
-from bot.filters.auth import RequiredUserFilter
-from core.words.schemas import QuestionType
-from aioinject.ext.fastapi import inject
-from sqlalchemy.orm import Session
 from aiogram.methods import EditMessageReplyMarkup
-from sqlalchemy import update, select
+from aioinject import Inject
+from aioinject.ext.fastapi import inject
+from sqlalchemy import select, update
+from sqlalchemy.orm import Session
 
-from core.users.schemas import UserSchema
-from core.words.services import QuizeService, QuizeFilter
-from db.models import QuizQuestion, QuizTheme
+from bot.filters.auth import RequiredUserFilter
 from bot.keyboards.callback_enum import QueryCallBack
-
+from bot.keyboards.inline import generate_answer_keyboard, generate_question_keyboard
+from core.users.schemas import UserSchema
+from core.words.schemas import QuestionType
+from core.words.services import QuizeFilter, QuizeService
+from db.models import QuizQuestion, QuizTheme
 
 router = Router()
 
@@ -44,7 +44,7 @@ async def get_game_settings(
         session.flush()
     if q_filter.theme_id:
         theme = session.scalar(
-            select(QuizTheme).where(QuizTheme.id == q_filter.theme_id)
+            select(QuizTheme).where(QuizTheme.id == q_filter.theme_id),
         )
         await message.answer("Тема:" + str(theme.name))
     else:
@@ -54,7 +54,7 @@ async def get_game_settings(
     else:
         await message.answer("Уровень не выбран")
     await message.answer(
-        "Максимальное количество вопросов: " + str(q_filter.max_question)
+        "Максимальное количество вопросов: " + str(q_filter.max_question),
     )
 
 
@@ -76,19 +76,20 @@ async def change_maximum_quantity_of_questions(
 
     if len(message.text.split()) != 2:
         await message.answer(
-            "Комманда введена неправильно, напишите /change_maximum_quantity_of_questions <кол-во вопросов>"
+            "Комманда введена неправильно, напишите /change_maximum_quantity_of_questions <кол-во вопросов>",
         )
     else:
         try:
             update(QuizeFilter).where(QuizeFilter.user.id == user.id).values(
-                max_question=int(message.text.split()[1])
-            )
-            await message.answer(
-                "Теперь максимальное количество вопросов равно "
-                + message.text.split()[1]
+                max_question=int(message.text.split()[1]),
             )
         except:
             await message.answer("Проверьте правильность ввода команды")
+        else:
+            await message.answer(
+                "Теперь максимальное количество вопросов равно "
+                + message.text.split()[1],
+            )
 
 
 @router.message(
@@ -109,12 +110,12 @@ async def change_theme(
 
     if len(message.text.split()) != 2:
         await message.answer(
-            "Комманда введена неправильно, напишите /change_theme <тема>"
+            "Комманда введена неправильно, напишите /change_theme <тема>",
         )
     else:
         try:
             theme = session.scalar(
-                select(QuizTheme).where(QuizTheme.name == message.text.split()[1])
+                select(QuizTheme).where(QuizTheme.name == message.text.split()[1]),
             )
             stmt = (
                 update(QuizeFilter)
@@ -122,11 +123,12 @@ async def change_theme(
                 .values(theme_id=theme.id)
             )
             session.execute(stmt)
-            await message.answer("Теперь тема - " + theme.name)
         except:
             await message.answer(
-                "Комманда введена неправильно или такой темы не существует"
+                "Комманда введена неправильно или такой темы не существует",
             )
+        else:
+            await message.answer("Теперь тема - " + theme.name)
 
 
 @router.message(
@@ -153,7 +155,7 @@ async def start_game(
             "position": 0,
             "questions": list(map(QuestionType.dict, serialize_data)),
             "answers": [],
-        }
+        },
     )
     await send_question(message, quize_quest[0])
 
@@ -183,7 +185,7 @@ async def send_answer(
                 "position": data["position"] + 1,
                 "questions": data["questions"],
                 "answers": data["answers"],
-            }
+            },
         )
     else:
         score = 0

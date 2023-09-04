@@ -1,13 +1,12 @@
 """empty message
 
 Revision ID: be7905623b59
-Revises: 
+Revises:
 Create Date: 2023-01-09 20:11:05.573191
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "be7905623b59"
@@ -43,10 +42,10 @@ def upgrade() -> None:
         sa.Column("from_language_id", sa.Integer(), nullable=True),
         sa.Column("to_language_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["from_language_id"], ["languages.id"], ondelete="CASCADE"
+            ["from_language_id"], ["languages.id"], ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["to_language_id"], ["languages.id"], ondelete="CASCADE"
+            ["to_language_id"], ["languages.id"], ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

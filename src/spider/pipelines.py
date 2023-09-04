@@ -7,22 +7,24 @@
 # useful for handling different item types with a single interface
 from typing import Annotated
 
-from core.words.services import WordService
+from aioinject import Inject, inject
+
 from core.words.schemas import WordCreateSchema
-from aioinject import inject, Inject
+from core.words.services import WordService
+
 from .items import WordItem
 
 
 class SpiderPipeline:
     @inject
     async def process_item(
-        self, item: WordItem, spider, word_service: Annotated[WordService, Inject]
+        self, item: WordItem, spider, word_service: Annotated[WordService, Inject],
     ):
         await word_service.append_word(
             WordCreateSchema(
                 word=item["word"],
                 translate_words=item["`translate_words`"],
-            )
+            ),
         )
 
         return item

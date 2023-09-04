@@ -1,11 +1,12 @@
 from typing import Annotated
+
 from aioinject import Inject
 from aioinject.ext.fastapi import inject
 from fastapi import APIRouter
 from sqlalchemy.orm import Session
-from api.auth import Authenticate
-from api.schemas.auth import SignInSchema, ResponseAuthSchema
 
+from api.auth import Authenticate
+from api.schemas.auth import ResponseAuthSchema, SignInSchema
 
 router = APIRouter(prefix="/auth")
 

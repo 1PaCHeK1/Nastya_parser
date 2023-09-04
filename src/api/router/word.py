@@ -1,19 +1,20 @@
 from typing import Annotated
+
+from aioinject import Inject
+from aioinject.ext.fastapi import inject
 from business_validator import ErrorSchema, ValidationError
+from fastapi import APIRouter, Depends, Request, UploadFile
 from sqlalchemy.orm import Session
+
 from api.auth import Authenticate
 from api.router.bodies import WordInsertWithTranslateSchema
 from api.router.filters import WordFilterParams
-from fastapi import APIRouter, Depends, UploadFile, Request
-from aioinject import Inject
-from aioinject.ext.fastapi import inject
+from api.schemas.word import WordSchema
 from core.image.usecases import ReadTextFromImageUseCase
 from core.words.dto import WordCoreFilter
-from core.words.services import WordService
 from core.words.schemas import WordCreateSchema
-from api.schemas.word import WordSchema
+from core.words.services import WordService
 from db.models import LanguageEnum
-
 
 router = APIRouter(prefix="/word")
 

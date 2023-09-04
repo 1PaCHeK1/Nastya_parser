@@ -1,30 +1,30 @@
 import aio_pika
-from aioinject import Container, Callable, Singleton, Object
+from aioinject import Callable, Container, Object, Singleton
 from sqlalchemy.orm import Session
+
 from core.image.usecases import ReadTextFromImageUseCase
 from core.posts.query import GetUnreadedPostQuery
 from core.posts.repository import PostRepository
+from db.base import Database, get_session
 from rabbit.channel import create_channel
 from rabbit.connection import create_connection
-
 from settings import (
+    AppSettings,
+    BotSettings,
     DatabaseSettings,
+    FastApiSettings,
     RabbitSettings,
     RedisSettings,
-    AppSettings,
-    FastApiSettings,
     SentrySettings,
-    BotSettings,
     get_settings,
 )
 
-from db.base import Database, get_session
-from .users import services as user_services
-from .words import services as word_services
 from .caches import services as cache_services
 from .image import services as image_services
-from .users import usecases as user_cases
 from .mail import services as mail_services
+from .users import services as user_services
+from .users import usecases as user_cases
+from .words import services as word_services
 
 
 def create_container() -> Container:

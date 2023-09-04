@@ -1,5 +1,6 @@
-from .base import BaseSchema
 from db.models import LanguageEnum
+
+from .base import BaseSchema
 
 
 class WordSchema(BaseSchema):

@@ -1,6 +1,7 @@
-import aio_pika
-from collections.abc import AsyncIterator
 import contextlib
+from collections.abc import AsyncIterator
+
+import aio_pika
 
 
 @contextlib.asynccontextmanager

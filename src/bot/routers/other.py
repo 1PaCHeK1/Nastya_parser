@@ -1,10 +1,10 @@
-from aiogram import types, Router
+from aiogram import Router, types
 from aiogram.filters import Command
+
 from bot.core import texts
 from bot.filters.auth import IdentifyUserFilter
-from core.users.schemas import UserSchema
 from bot.keyboards import inline
-
+from core.users.schemas import UserSchema
 
 router = Router()
 
@@ -16,7 +16,7 @@ router = Router()
 async def welcome_command(message: types.Message, user: UserSchema | None):
     if user is None:
         await message.answer(
-            texts.welcome_text, reply_markup=inline.no_auth_start_keyboard
+            texts.welcome_text, reply_markup=inline.no_auth_start_keyboard,
         )
     else:
         await message.answer(texts.welcome_text_auth)

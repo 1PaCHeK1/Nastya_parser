@@ -1,11 +1,12 @@
 from typing import Annotated
-from api.router.bodies import UserRegistrationSchema
-from fastapi import APIRouter, HTTPException, Path
+
 from aioinject import Inject
 from aioinject.ext.fastapi import inject
+from fastapi import APIRouter, HTTPException, Path
+
+from api.router.bodies import UserRegistrationSchema
 from core.users.schemas import UserRegistrationApiDto, UserSchema
 from core.users.usecases import RegistrationFromApiUseCase
-
 
 router = APIRouter(prefix="/auth")
 
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/auth")
 @router.post("/registration")
 @inject
 async def registration(
-    body: UserRegistrationSchema, usecase: Annotated[RegistrationFromApiUseCase, Inject]
+    body: UserRegistrationSchema, usecase: Annotated[RegistrationFromApiUseCase, Inject],
 ) -> UserSchema:
     user = await usecase.execute(UserRegistrationApiDto.from_orm(body))
     if user is None:

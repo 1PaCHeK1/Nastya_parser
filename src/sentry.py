@@ -1,6 +1,7 @@
 import sentry_sdk
 from sentry_sdk.integrations import Integration
-from settings import get_settings, SentrySettings
+
+from settings import SentrySettings, get_settings
 
 
 def init(integrations: list[Integration] | None = None):

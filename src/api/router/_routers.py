@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
 from .auth import router as auth_router
-from .word import router as word_router
-from .user import router as user_router
 from .post import router as post_router
+from .user import router as user_router
+from .word import router as word_router
 
 router = APIRouter()
 

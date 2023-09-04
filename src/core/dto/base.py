@@ -1,5 +1,5 @@
-from typing import Any
-from typing_extensions import Self
+from typing import Any, Self
+
 from pydantic import BaseModel, ConfigDict
 
 

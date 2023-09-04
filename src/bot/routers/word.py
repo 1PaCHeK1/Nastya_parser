@@ -1,26 +1,22 @@
 import json
 from typing import Annotated
-from aiogram import types, Router
+
+from aiogram import Router, types
 from aiogram.filters import Command
-from aioinject import Inject
-from bot.filters.auth import IdentifyUserFilter, RequiredUserFilter
-from core.users.schemas import UserSchema
-from aioinject import inject
+from aioinject import Inject, inject
 from sqlalchemy.orm import Session
 
+import bot.keyboards.inline as key_inline
+from bot.filters.auth import IdentifyUserFilter, RequiredUserFilter
 from bot.keyboards.callback_enum import (
     CallbackData,
     CallbackDataEnum,
     ObjectId,
     PageNavigator,
 )
-
-import bot.keyboards.inline as key_inline
-
-
 from core.caches.services import RedisService
+from core.users.schemas import UserSchema
 from core.words.services import WordService
-
 
 router = Router()
 
@@ -54,7 +50,7 @@ async def get_favorites(
 @router.message(Command("list"))
 @inject
 async def get_list_word(
-    message: types.Message, redis_service: Annotated[RedisService, Inject]
+    message: types.Message, redis_service: Annotated[RedisService, Inject],
 ):
     texts = (
         "\n".join(await redis_service.get_translations(message.from_id))
@@ -70,7 +66,7 @@ async def callback(
 ):
     serialize_data = json.loads(callback_info.data)
     callback_data = CallbackData[dict].parse_obj(serialize_data)
-    match CallbackDataEnum(callback_data.enum):  # noqa: E999
+    match CallbackDataEnum(callback_data.enum):
         case CallbackDataEnum.save_favorite:
             await add_favorite(callback_info, user)
         case CallbackDataEnum.remove_favorite:
@@ -78,10 +74,10 @@ async def callback(
         case CallbackDataEnum.next_page | CallbackDataEnum.prev_page:
             callback_data = CallbackData[PageNavigator].parse_obj(serialize_data)
             favorite_list = await get_list_favorite(
-                user, callback_data.data.page_number
+                user, callback_data.data.page_number,
             )
             markup = key_inline.generate_favorite_keyboard(
-                favorite_list, callback_data.data.page_number
+                favorite_list, callback_data.data.page_number,
             )
             await callback_info.message.edit_reply_markup(markup)
         case CallbackDataEnum.translate_word:
@@ -106,8 +102,8 @@ async def add_favorite(
 
     await word_service.add_favorite(word, user, session)
     await data.message.answer(
-        f"Слово {word} записано в словарь с переводом {translate}"
-    )  # noqa: E501
+        f"Слово {word} записано в словарь c переводом {translate}",
+    )
     await data.message.edit_reply_markup(key_inline.remove_favorite_keyboard)
 
 
@@ -122,8 +118,8 @@ async def remove_favorite(
     translate = data.message.text
     await word_service.remove_favorite(word, user, session)
     await data.message.answer(
-        f"Слово {word} удалено из словаря с переводом {translate}"
-    )  # noqa: E501
+        f"Слово {word} удалено из словаря c переводом {translate}",
+    )
     await data.message.edit_reply_markup(key_inline.add_favorite_keyboard)
 
 

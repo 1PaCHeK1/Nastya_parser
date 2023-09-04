@@ -1,12 +1,13 @@
+from aioinject.ext.fastapi import InjectMiddleware
 from business_validator import ValidationError
 from fastapi import FastAPI
-from settings import get_settings, FastApiSettings
 from starlette.middleware.cors import CORSMiddleware
-from aioinject.ext.fastapi import InjectMiddleware
-from sentry import init as sentry_init
-from core.container import create_container
-from api.router import router
+
 from api.handlers import handle_validation_errors
+from api.router import router
+from core.container import create_container
+from sentry import init as sentry_init
+from settings import FastApiSettings, get_settings
 
 
 def create_fastapi() -> FastAPI:

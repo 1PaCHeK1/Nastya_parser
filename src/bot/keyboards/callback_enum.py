@@ -1,7 +1,6 @@
-from aiogram.filters.callback_data import CallbackData
-
 from enum import Enum
 
+from aiogram.filters.callback_data import CallbackData
 from pydantic import BaseModel
 
 

@@ -61,9 +61,32 @@ dev = [
 ]
 
 [tool.ruff]
+target-version = "py311"
+src = ["src", "tests"]
+fixable = [
+    "F",
+    "E",
+    "W",
+    "I",
+    "COM",
+    "UP",
+    "RUF",
+]
+ignore = [
+    "E501", # Line Length
+    "A003", # Class attribute ... is shadowing a python builtin
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN102", # Missing type annotation for `cls` in classmethod
+    "D", # pydocstyle
+    "INP",
+    "TCH001", # Move import into type-checking block
+    "TCH003",
+    "RUF012",
+]
 extend-exclude = [
     "*/__init__.py",
     "*/texts.py",
+    "*/env.py"
 ]
 
 

@@ -1,9 +1,10 @@
 from typing import Annotated
-from aiogram import Router, types, Bot
-from aiogram.filters import Command
-from aioinject import inject, Inject
-from core.image.services import ImageProcessService
 
+from aiogram import Bot, Router, types
+from aiogram.filters import Command
+from aioinject import Inject, inject
+
+from core.image.services import ImageProcessService
 
 router = Router()
 

@@ -1,17 +1,20 @@
-import jwt
+from datetime import UTC, date, datetime
+from typing import overload
+
 import bcrypt
-from datetime import date, datetime, timezone
+import jwt
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from typing import overload
-from db.models import User
+from pydantic import BaseModel
+
 from core.users.schemas import (
-    UserSchema,
     UserCreateSchema,
-    UserUpdateSchema,
     UserRegistrationApiDto,
     UserRegistrationTgDto,
+    UserSchema,
+    UserUpdateSchema,
 )
+from db.models import User
 
 
 class UserTgService:
@@ -23,7 +26,7 @@ class UserTgService:
         return UserSchema.from_orm(user)
 
     async def get_user_by_tg_id(
-        self, tg_id: int, session: Session
+        self, tg_id: int, session: Session,
     ) -> UserSchema | None:
         # SELECT * FROM users
         user = session.scalar(select(User).where(User.tg_id == tg_id))
@@ -55,9 +58,6 @@ class UserTgService:
         session.commit()
         session.refresh(user)
         return UserSchema.from_orm(user)
-
-
-from pydantic import BaseModel
 
 
 class RegistrationToken(BaseModel):
@@ -99,7 +99,7 @@ class HashService:
 
     def decode_user(self, token: str) -> RegistrationToken:
         return RegistrationToken.parse_obj(
-            jwt.decode(token, key="test", algorithms=["HS256"])
+            jwt.decode(token, key="test", algorithms=["HS256"]),
         )
 
 
@@ -136,7 +136,7 @@ class UserService:
             username=dto.username,
             email=dto.email,
         )
-        user.create_at = datetime.now(tz=timezone.utc).date()
+        user.create_at = datetime.now(tz=UTC).date()
         user.password = self._hash.encode_password(dto.password)
         self._session.add(user)
         return user

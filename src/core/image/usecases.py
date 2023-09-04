@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+
 from business_validator import ErrorSchema
 from fastapi import UploadFile
 

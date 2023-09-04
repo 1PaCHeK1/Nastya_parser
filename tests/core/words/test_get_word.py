@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from core.users.schemas import UserSchema
 from core.words.schemas import WordCreateSchema
 from core.words.services import WordService
@@ -17,7 +18,7 @@ async def test_get_word_from_db(
     )
 
     assert sorted([w.lower() for w in translated_words]) == sorted(
-        [w.lower() for w in word.translate_words]
+        [w.lower() for w in word.translate_words],
     )
 
 

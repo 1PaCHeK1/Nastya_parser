@@ -1,6 +1,7 @@
-from fastapi import Query
-from typing import Annotated
 from dataclasses import dataclass
+from typing import Annotated
+
+from fastapi import Query
 
 from db.models import LanguageEnum
 

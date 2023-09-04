@@ -7,7 +7,9 @@ from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.requests import Request
-from core.auth import NoAuthError, authenticate as core_authenticate
+
+from core.auth import NoAuthError
+from core.auth import authenticate as core_authenticate
 from db.models import Token
 
 

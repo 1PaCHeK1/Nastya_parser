@@ -1,8 +1,8 @@
-from collections.abc import Iterator, Generator
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine, orm
-from sqlalchemy.orm import declarative_base, Session
+from sqlalchemy.orm import Session, declarative_base
 
 from settings import DatabaseSettings
 

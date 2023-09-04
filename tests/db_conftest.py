@@ -1,20 +1,16 @@
-import os
 import asyncio
+import os
 import pathlib
+from collections.abc import Iterable
+
 import pytest
-
 import sqlalchemy_utils
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from typing import Iterable
-
-
-from sqlalchemy.engine import Connection, Engine
-
 from alembic import command, config
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Connection, Engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from db.models import Language
-
 
 base_dir = pathlib.Path(__file__).resolve().parent.parent
 
@@ -97,7 +93,7 @@ def load_database(
         [
             Language(name="ru", order=1),
             Language(name="en", order=2),
-        ]
+        ],
     )
     raw_session.flush()
 

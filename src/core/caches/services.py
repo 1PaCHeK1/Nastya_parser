@@ -1,10 +1,11 @@
 import json
-from redis import asyncio as aioredis
 from contextlib import asynccontextmanager
 from enum import Enum
 
-from settings import RedisSettings
+from redis import asyncio as aioredis
+
 from core.users.schemas import UserSchema
+from settings import RedisSettings
 
 
 class RedisDbEnum(int, Enum):
@@ -32,7 +33,7 @@ class RedisService:
         return translate_words
 
     async def set_translate(
-        self, word: str, translate_words: list[str]
+        self, word: str, translate_words: list[str],
     ) -> list[str] | None:
         async with self.get_context(RedisDbEnum.translate_words) as redis:
             translate_words_rd = json.loads(await redis.get(word) or "[]")
@@ -42,7 +43,7 @@ class RedisService:
     @asynccontextmanager
     async def get_context(self, database: RedisDbEnum):
         _redis = aioredis.Redis.from_url(
-            self.redis_url, db=database.value, decode_responses=True
+            self.redis_url, db=database.value, decode_responses=True,
         )
 
         yield _redis

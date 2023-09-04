@@ -1,14 +1,13 @@
 from collections.abc import AsyncIterator
-import pytest
 
+import pytest
+from aioinject import Container, InjectionContext
 from sqlalchemy.orm import Session
 
 from core.container import create_container
-from aioinject import Container, InjectionContext
 from core.users.schemas import UserCreateSchema, UserSchema
 from core.users.services import UserTgService
 from core.words.services import WordService
-
 
 pytest_plugins = ["tests.db_conftest"]
 
