@@ -12,8 +12,8 @@ from bot.keyboards.callback_enum import QueryCallBack
 from bot.keyboards.inline import generate_answer_keyboard, generate_question_keyboard
 from core.users.schemas import UserSchema
 from core.words.schemas import QuestionType
-from core.words.services import QuizeFilter, QuizeService
-from db.models import QuizQuestion, QuizTheme
+from core.words.services import QuizeService
+from db.models import QuizQuestion
 
 router = Router()
 
