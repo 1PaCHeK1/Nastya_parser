@@ -15,13 +15,12 @@ class IdentifyUserFilter(Filter):
         self,
         message: types.Message | types.CallbackQuery,
         user_service: Annotated[UserTgService, Inject],
-        session: Annotated[Session, Inject],
         state: FSMContext = None,
         *args,
         **kwargs,
     ) -> dict[str, Any]:
         user_id = message.from_user.id
-        user = await user_service.get_user_by_tg_id(user_id, session)
+        user = await user_service.get_user_by_tg_id(user_id)
 
         return {
             "user": user,
@@ -34,13 +33,12 @@ class RequiredUserFilter(Filter):
         self,
         message: types.Message | types.CallbackQuery,
         user_service: Annotated[UserTgService, Inject],
-        session: Annotated[Session, Inject],
         state: FSMContext = None,
         *args,
         **kwargs,
     ) -> dict[str, Any] | Literal[False]:
         user_id = message.from_user.id
-        user = await user_service.get_user_by_tg_id(user_id, session)
+        user = await user_service.get_user_by_tg_id(user_id)
 
         if user is None:
             await message.answer("Сначала нужно авторизоваться!")

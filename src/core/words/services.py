@@ -4,14 +4,14 @@ from collections.abc import Sequence
 import langid
 import sqlalchemy as sa
 from pydantic import BaseModel
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from core.caches.services import RedisService
 from core.users.schemas import UserSchema
 from core.words.dto import WordCoreFilter
 from core.words.schemas import WordCreateSchema
-from db.models import FavoriteWord, LanguageEnum, QuizQuestion, Word, WordTranslate
+from db.models import FavoriteWord, LanguageEnum, QuizQuestion, Word, WordTranslate, QuizTheme
 from parsers.translate_word import TranslateWordService
 
 
@@ -23,27 +23,27 @@ class WordService:
         self,
         parser_service: TranslateWordService,
         cache_service: RedisService,
+        session: Session,
     ) -> None:
         langid.set_languages([enum.name for enum in LanguageEnum])
         self.parser_service = parser_service
         self.cache_service = cache_service
+        self._session = session
 
     async def get_words(
         self,
         filter_: WordCoreFilter,
-        session: Session,
     ) -> Sequence[Word]:
         stmt = select(Word).where(filter_.get_expression())
-        return session.scalars(stmt).all()
+        return self._session.scalars(stmt).all()
 
     async def get_translate_by_id(
         self,
         user: UserSchema,
         word_id: int,
-        session: Session,
     ) -> list[str]:
         TranslateWord = sa.orm.util.AliasedClass(Word)
-        words = session.scalars(
+        words = self._session.scalars(
             select(Word.text, TranslateWord.text.label("translate_word"))
             .join(
                 WordTranslate,
@@ -69,7 +69,6 @@ class WordService:
         self,
         user: UserSchema,
         word: str,
-        session: Session,
     ) -> list[str]:
         print("find in redis")
         translate_words = None and await self.cache_service.get_translate(user, word)
@@ -78,7 +77,7 @@ class WordService:
 
         print("find in database")
         TranslateWord = sa.orm.util.AliasedClass(Word)
-        translate_words = session.scalars(
+        translate_words = self._session.scalars(
             select(Word.text, TranslateWord.text.label("translate_word"))
             .join(
                 WordTranslate,
@@ -106,7 +105,7 @@ class WordService:
             print("find in site")
             translate_words = await self.parser_service.get_translate(word)
 
-        await self.append_word(word, session)
+        await self.append_word(word)
         await self.cache_service.set_translate(word, translate_words)
         return translate_words
 
@@ -116,48 +115,50 @@ class WordService:
     async def get_examples(self, word: str) -> str:
         ...
 
-    async def append_word(self, word: WordCreateSchema, session: Session) -> None:
+    async def append_word(self, word: WordCreateSchema) -> None:
         language_code = langid.classify(word.word)
         main_word = Word(
             text=word.word,
             language=LanguageEnum[language_code],
         )
-        session.add(main_word)
-        session.flush()
+        self._session.add(main_word)
+        self._session.flush()
         for word_translate in word.translate_words:
             language_code = langid.classify(word_translate)
             translate = Word(
                 text=word_translate,
                 language=LanguageEnum[language_code],
             )
-            session.add(translate)
-            session.flush()
+            self._session.add(translate)
+            self._session.flush()
             wordtranslate = WordTranslate(
                 word_from_id=main_word.id, word_to_id=translate.id,
             )
-            session.add(wordtranslate)
-            session.flush()
+            self._session.add(wordtranslate)
+            self._session.flush()
 
-    async def add_favorite(self, word_text: str, user: UserSchema, session: Session):
-        word = session.scalar(select(Word).where(Word.text == word_text))
+    async def add_favorite(self, word_text: str, user: UserSchema):
+        word = self._session.scalar(select(Word).where(Word.text == word_text))
         favoriteword = FavoriteWord(
             user_id=user.id,
             word_id=word.id,
         )
-        session.add(favoriteword)
-        session.flush()
+        self._session.add(favoriteword)
+        self._session.flush()
 
-    async def remove_favorite(self, word: str, user: UserSchema, session: Session):
-        word = session.scalar(select(Word).where(Word.text == word))
+    async def remove_favorite(self, word: str, user: UserSchema):
+        word = self._session.scalar(select(Word).where(Word.text == word))
         delete(FavoriteWord).where(
             FavoriteWord.word_id == word.id, FavoriteWord.user_id == user.id,
         )
-        session.commit()
+        self._session.commit()
 
     async def get_favorite(
-        self, user: UserSchema, page_number: int, session: Session,
+        self, 
+        user: UserSchema, 
+        page_number: int,
     ) -> list[Word]:
-        words = session.scalars(
+        words = self._session.scalars(
             select(Word)
             .join(
                 FavoriteWord,
@@ -194,15 +195,17 @@ class QuizeFilter(BaseModel):
 
 
 class QuizeService:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
     async def get_game(
         self,
         user: UserSchema,
-        session: Session,
         quize_filter: QuizeFilter | None = None,
     ) -> Sequence[QuizQuestion]:
         quize_filter = quize_filter or QuizeFilter(user=user)
         params = quize_filter.get_expression()
-        quizQuestions = list(session.query(QuizQuestion.id).where(params).all())
+        quizQuestions = list(self._session.query(QuizQuestion.id).where(params).all())
         if quizQuestions == []:
             return []
         selected_games = random.sample(
@@ -210,9 +213,24 @@ class QuizeService:
         )
 
         return (
-            session.scalars(
+            self._session.scalars(
                 select(QuizQuestion).where(
                     QuizQuestion.id.in_([i.id for i in selected_games]),
                 ),
             )
         ).all()
+    
+    async def get_filter_by_user(self, user: UserSchema) -> QuizeFilter:
+        f = self._session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
+        if f:
+            return f
+        return QuizeFilter(user=user)
+    
+    async def get_quize_theme_by_id(self, theme_id) -> None | QuizTheme:
+        return self._session.scalar(select(QuizTheme).where(QuizTheme.id == theme_id))
+    
+    async def get_quize_theme_by_name(self, theme_name) -> None | QuizTheme:
+        return self._session.scalar(select(QuizTheme).where(QuizTheme.name == theme_name))
+
+    async def update_filter_data(self, user: UserSchema, values) -> None:
+        self._session.execute(update(QuizeFilter).where(QuizeFilter.user.id == user.id).values(values))

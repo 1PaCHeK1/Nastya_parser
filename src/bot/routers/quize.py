@@ -6,8 +6,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.methods import EditMessageReplyMarkup
 from aioinject import Inject
 from aioinject.ext.fastapi import inject
-from sqlalchemy import select, update
-from sqlalchemy.orm import Session
 
 from bot.filters.auth import RequiredUserFilter
 from bot.keyboards.callback_enum import QueryCallBack
@@ -35,17 +33,11 @@ async def send_question(message: types.Message, question: QuizQuestion) -> None:
 async def get_game_settings(
     message: types.Message,
     user: UserSchema,
-    session: Annotated[Session, Inject],
+    quize_service: Annotated[QuizeService, Inject],
 ):
-    q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
-    if not q_filter:
-        q_filter = QuizeFilter(user=user)
-        session.add(q_filter)
-        session.flush()
+    q_filter = await quize_service.get_filter_by_user(user)
     if q_filter.theme_id:
-        theme = session.scalar(
-            select(QuizTheme).where(QuizTheme.id == q_filter.theme_id),
-        )
+        theme = await quize_service.get_quize_theme_by_id(q_filter.theme_id)
         await message.answer("Тема:" + str(theme.name))
     else:
         await message.answer("Тема не выбрана")
@@ -66,23 +58,15 @@ async def get_game_settings(
 async def change_maximum_quantity_of_questions(
     message: types.Message,
     user: UserSchema,
-    session: Annotated[Session, Inject],
+    quize_service: Annotated[QuizeService, Inject],
 ):
-    q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
-    if not q_filter:
-        q_filter = QuizeFilter(user=user)
-        session.add(q_filter)
-        session.flush()
-
     if len(message.text.split()) != 2:
         await message.answer(
             "Комманда введена неправильно, напишите /change_maximum_quantity_of_questions <кол-во вопросов>",
         )
     else:
         try:
-            update(QuizeFilter).where(QuizeFilter.user.id == user.id).values(
-                max_question=int(message.text.split()[1]),
-            )
+            quize_service.update_filter_data(user, {"max_question": int(message.text.split()[1])})
         except:
             await message.answer("Проверьте правильность ввода команды")
         else:
@@ -100,29 +84,16 @@ async def change_maximum_quantity_of_questions(
 async def change_theme(
     message: types.Message,
     user: UserSchema,
-    session: Annotated[Session, Inject],
+    quize_service: Annotated[QuizeService, Inject],
 ):
-    q_filter = session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
-    if not q_filter:
-        q_filter = QuizeFilter(user=user)
-        session.add(q_filter)
-        session.flush()
-
     if len(message.text.split()) != 2:
         await message.answer(
             "Комманда введена неправильно, напишите /change_theme <тема>",
         )
     else:
         try:
-            theme = session.scalar(
-                select(QuizTheme).where(QuizTheme.name == message.text.split()[1]),
-            )
-            stmt = (
-                update(QuizeFilter)
-                .where(QuizeFilter.user.id == user.id)
-                .values(theme_id=theme.id)
-            )
-            session.execute(stmt)
+            theme = await quize_service.get_quize_theme_by_name(message.text.split()[1])
+            await quize_service.update_filter_data(user, {"theme_id": theme.id})
         except:
             await message.answer(
                 "Комманда введена неправильно или такой темы не существует",
@@ -140,10 +111,9 @@ async def start_game(
     message: types.Message,
     user: UserSchema,
     state: FSMContext,
-    session: Annotated[Session, Inject],
     quize_service: Annotated[QuizeService, Inject],
 ):
-    quize_quest = await quize_service.get_game(user, session)
+    quize_quest = await quize_service.get_game(user)
 
     if len(quize_quest) == 0:
         return

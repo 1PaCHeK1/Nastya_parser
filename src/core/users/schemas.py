@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+from datetime import date
 
 
 class UserSchema(BaseModel):
@@ -38,3 +39,11 @@ class UserRegistrationTgDto(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     tg_id: int = Field(gt=10 * 9 - 1, lt=10**10)
+
+
+class RegistrationToken(BaseModel):
+    id: int
+    create_at: date
+
+    class Config:
+        orm_mode = True

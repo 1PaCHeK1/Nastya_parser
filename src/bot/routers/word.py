@@ -4,7 +4,6 @@ from typing import Annotated
 from aiogram import Router, types
 from aiogram.filters import Command
 from aioinject import Inject, inject
-from sqlalchemy.orm import Session
 
 import bot.keyboards.inline as key_inline
 from bot.filters.auth import IdentifyUserFilter, RequiredUserFilter
@@ -28,12 +27,11 @@ async def get_translate(
     text: str | None = None,
     word_id: int | None = None,
     word_service: Annotated[WordService, Inject],
-    session: Annotated[Session, Inject],
 ) -> list[str]:
     if text is not None:
-        return await word_service.get_translate(user, text, session)
+        return await word_service.get_translate(user, text)
     if word_id is not None:
-        return await word_service.get_translate_by_id(user, word_id, session)
+        return await word_service.get_translate_by_id(user, word_id)
     raise ValueError
 
 
@@ -50,7 +48,8 @@ async def get_favorites(
 @router.message(Command("list"))
 @inject
 async def get_list_word(
-    message: types.Message, redis_service: Annotated[RedisService, Inject],
+    message: types.Message, 
+    redis_service: Annotated[RedisService, Inject],
 ):
     texts = (
         "\n".join(await redis_service.get_translations(message.from_id))
@@ -95,12 +94,11 @@ async def add_favorite(
     data: types.callback_query.CallbackQuery,
     user: UserSchema,
     word_service: Annotated[WordService, Inject],
-    session: Annotated[Session, Inject],
 ):
     word = data.message.reply_to_message.text
     translate = data.message.text
 
-    await word_service.add_favorite(word, user, session)
+    await word_service.add_favorite(word, user)
     await data.message.answer(
         f"Слово {word} записано в словарь c переводом {translate}",
     )
@@ -112,11 +110,10 @@ async def remove_favorite(
     data: types.callback_query.CallbackQuery,
     user: UserSchema,
     word_service: Annotated[WordService, Inject],
-    session: Annotated[Session, Inject],
 ):
     word = data.message.reply_to_message.text
     translate = data.message.text
-    await word_service.remove_favorite(word, user, session)
+    await word_service.remove_favorite(word, user)
     await data.message.answer(
         f"Слово {word} удалено из словаря c переводом {translate}",
     )
@@ -126,11 +123,10 @@ async def remove_favorite(
 @inject
 async def get_list_favorite(
     word_service: Annotated[WordService, Inject],
-    session: Annotated[Session, Inject],
     user: UserSchema,
     page_number: int = 0,
 ):
-    favorite_words = await word_service.get_favorite(user, page_number, session)
+    favorite_words = await word_service.get_favorite(user, page_number)
     return favorite_words
 
 
@@ -140,9 +136,8 @@ async def translate_word(
     message: types.Message,
     user: UserSchema,
     word_service: Annotated[WordService, Inject],
-    session: Annotated[Session, Inject],
 ):
-    words = await word_service.get_translate(user, message.text, session)
+    words = await word_service.get_translate(user, message.text)
     if words:
         words = ", ".join(words)
         await message.reply(words, reply_markup=key_inline.add_favorite_keyboard)

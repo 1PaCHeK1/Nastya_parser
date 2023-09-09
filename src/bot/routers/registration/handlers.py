@@ -40,11 +40,7 @@ async def registration_callback(data: types.callback_query.CallbackQuery):
     await RegistrationState.username.set()
 
 
-@router.message(
-    Command("cancel", ignore_case=True),
-    # RegistrationState.username,
-    # RegistrationState.email,
-)
+@router.message(Command("cancel", ignore_case=True))
 async def cancel_registration(message: types.Message, state: FSMContext):
     await message.answer(texts.cancel_text)
     await state.finish()
@@ -68,8 +64,6 @@ async def username_registration(message: types.Message, state: FSMContext):
 @inject
 async def invalid_email_registration(
     message: types.Message,
-    state: FSMContext,
-    user_service: Annotated[UserTgService, Inject],
 ):
     await message.reply(texts.invalid_registration_email_text)
 
@@ -80,7 +74,6 @@ async def email_registration(
     message: types.Message,
     state: FSMContext,
     user_service: Annotated[UserTgService, Inject],
-    session: Annotated[Session, Inject],
 ):
     async with state.proxy() as data:
         data["email"] = message.text
@@ -91,7 +84,6 @@ async def email_registration(
             email=result["email"],
             tg_id=message.from_id,
         ),
-        session,
     )
 
     await message.answer(texts.finish_registration_text)

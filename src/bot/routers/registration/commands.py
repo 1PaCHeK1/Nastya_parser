@@ -11,9 +11,8 @@ from core.users.services import UserTgService
 async def start_registration(
     message: types.Message,
     user_service: Annotated[UserTgService, Inject],
-    session: Annotated[Session, Inject],
 ) -> bool:
     """Функция начала регистрации"""
-    if await user_service.check_user(message.from_user.id, session):
+    if await user_service.check_user(message.from_user.id):
         return False
     return True

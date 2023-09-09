@@ -4,7 +4,6 @@ from aioinject import Inject
 from aioinject.ext.fastapi import inject
 from business_validator import ErrorSchema, ValidationError
 from fastapi import APIRouter, Depends, Request, UploadFile
-from sqlalchemy.orm import Session
 
 from api.auth import Authenticate
 from api.router.bodies import WordInsertWithTranslateSchema
@@ -24,13 +23,9 @@ router = APIRouter(prefix="/word")
 async def get_all_words(
     token: Authenticate,
     params: Annotated[WordFilterParams, Depends()],
-    session: Annotated[Session, Inject],
     word_service: Annotated[WordService, Inject],
 ) -> list[WordSchema]:
-    words = await word_service.get_words(
-        WordCoreFilter(language=params.language, contain=params.contain),
-        session,
-    )
+    words = await word_service.get_words(WordCoreFilter(language=params.language, contain=params.contain))
     return WordSchema.model_validate_list(words)
 
 
@@ -44,14 +39,13 @@ async def get_languages() -> list[str]:
 @inject
 async def insert_word(
     body: WordInsertWithTranslateSchema,
-    session: Annotated[Session, Inject],
     word_service: Annotated[WordService, Inject],
 ) -> None:
     word = {
         "word": body.text,
         "translate_words": [translate.text for translate in body.translates],
     }
-    await word_service.append_word(WordCreateSchema.parse_obj(word), session)
+    await word_service.append_word(WordCreateSchema.parse_obj(word))
 
 
 @router.post("/translate-image")
