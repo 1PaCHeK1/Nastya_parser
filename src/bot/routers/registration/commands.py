@@ -2,7 +2,6 @@ from typing import Annotated
 
 from aiogram import types
 from aioinject import Inject, inject
-from sqlalchemy.orm import Session
 
 from core.users.services import UserTgService
 

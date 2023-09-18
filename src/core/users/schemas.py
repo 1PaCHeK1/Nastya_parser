@@ -42,8 +42,7 @@ class UserRegistrationTgDto(BaseModel):
 
 
 class RegistrationToken(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_at: date
-
-    class Config:
-        orm_mode = True

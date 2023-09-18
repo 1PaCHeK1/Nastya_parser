@@ -18,4 +18,4 @@ class AIOInjectMiddleware(BaseMiddleware):
     ) -> Any:
         async with self._container.context() as ctx:
             data["aioinject_context"] = ctx
-            return await super().__call__(handler, event, data)
+            return await handler(event, data)

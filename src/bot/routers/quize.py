@@ -15,7 +15,7 @@ from core.words.schemas import QuestionType
 from core.words.services import QuizeService
 from db.models import QuizQuestion
 
-router = Router()
+router = Router(name="quize")
 
 
 async def send_question(message: types.Message, question: QuizQuestion) -> None:

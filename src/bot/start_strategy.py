@@ -1,3 +1,4 @@
+import asyncio
 from typing import Never
 
 from bot.engine import create_bot, create_dispatcher
@@ -14,7 +15,8 @@ def polling() -> Never:
     bot = create_bot(config)
     dp = create_dispatcher(container)
 
-    dp.run_polling(bot)
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(dp.start_polling(bot))
 
 
 def webhook() -> Never:

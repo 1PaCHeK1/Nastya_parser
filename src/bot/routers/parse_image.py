@@ -6,7 +6,7 @@ from aioinject import Inject, inject
 
 from core.image.services import ImageProcessService
 
-router = Router()
+router = Router(name="image-parse")
 
 
 @router.message(Command("get-text"))

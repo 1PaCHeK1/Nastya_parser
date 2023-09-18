@@ -7,7 +7,7 @@ from core.mail.dto import EmailMessageDto
 from typing import Annotated
 from aioinject import Inject, inject
 
-router = Router()
+router = Router(name="email")
 
 
 @router.message(

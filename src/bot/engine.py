@@ -3,13 +3,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot.middlewares import AIOInjectMiddleware
-from bot.routers import (
-    image_router,
-    other_router,
-    quize_router,
-    registration_router,
-    word_router,
-)
+from bot.routers import router
 from settings import BotSettings
 
 
@@ -25,9 +19,12 @@ async def on_startup(bot: Bot, dispatcher: Dispatcher):
     )
 
 
-async def on_shutdown(dp: Dispatcher):
-    await dp.bot.delete_webhook()
-    container: aioinject.Container = dp["aioinject_container"]
+async def on_shutdown(
+    bot: Bot,
+    dispatcher: Dispatcher,
+):
+    await bot.delete_webhook()
+    container: aioinject.Container = dispatcher["aioinject_container"]
     await container.aclose()
 
 
@@ -47,12 +44,6 @@ def create_dispatcher(container: aioinject.Container) -> Dispatcher:
         AIOInjectMiddleware(container=container),
     )
 
-    dp.include_routers(
-        registration_router,
-        other_router,
-        quize_router,
-        image_router,
-        word_router,
-    )
+    dp.include_router(router)
 
     return dp

@@ -17,7 +17,7 @@ from core.caches.services import RedisService
 from core.users.schemas import UserSchema
 from core.words.services import WordService
 
-router = Router()
+router = Router(name="word")
 
 
 @inject
@@ -48,7 +48,7 @@ async def get_favorites(
 @router.message(Command("list"))
 @inject
 async def get_list_word(
-    message: types.Message, 
+    message: types.Message,
     redis_service: Annotated[RedisService, Inject],
 ):
     texts = (

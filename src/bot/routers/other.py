@@ -6,7 +6,7 @@ from bot.filters.auth import IdentifyUserFilter
 from bot.keyboards import inline
 from core.users.schemas import UserSchema
 
-router = Router()
+router = Router(name="other")
 
 
 @router.message(

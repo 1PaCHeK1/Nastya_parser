@@ -68,23 +68,6 @@ class FastApiSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="api_")
 
 
-class ContainterSettings:
-    sentry: SentrySettings
-    app: AppSettings
-    bot: BotSettings
-    api: FastApiSettings
-    database: DatabaseSettings
-    redis: RedisSettings
-
-    def __init__(self) -> None:
-        self.sentry = get_settings(SentrySettings)
-        self.app = get_settings(AppSettings)
-        self.bot = get_settings(BotSettings)
-        self.api = get_settings(FastApiSettings)
-        self.database = get_settings(DatabaseSettings)
-        self.redis = get_settings(RedisSettings)
-
-
 class RabbitSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="rabbit_")
 
@@ -97,3 +80,7 @@ class RabbitSettings(BaseSettings):
     @property
     def url(self) -> str:
         return f"amqp://{self.user}:{self.password}@{self.host}/"
+
+
+class BrokerSettings(BaseSettings):
+    ...

@@ -5,7 +5,6 @@ from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aioinject import Inject, inject
-from sqlalchemy.orm import Session
 
 from bot.core import texts
 from bot.keyboards.callback_enum import BaseData, CallbackDataEnum
