@@ -20,7 +20,7 @@ from db.models import User
 class UserTgService:
     def __init__(self, session: Session):
         self._session = session
-    
+
     async def get_users(self) -> list[UserSchema]:
         return list(map(UserSchema.from_orm, self._session.scalars(select(User))))
 

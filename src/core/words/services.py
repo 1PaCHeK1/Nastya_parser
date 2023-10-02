@@ -11,7 +11,14 @@ from core.caches.services import RedisService
 from core.users.schemas import UserSchema
 from core.words.dto import WordCoreFilter
 from core.words.schemas import WordCreateSchema
-from db.models import FavoriteWord, LanguageEnum, QuizQuestion, Word, WordTranslate, QuizTheme
+from db.models import (
+    FavoriteWord,
+    LanguageEnum,
+    QuizQuestion,
+    Word,
+    WordTranslate,
+    QuizTheme,
+)
 from parsers.translate_word import TranslateWordService
 
 
@@ -132,7 +139,8 @@ class WordService:
             self._session.add(translate)
             self._session.flush()
             wordtranslate = WordTranslate(
-                word_from_id=main_word.id, word_to_id=translate.id,
+                word_from_id=main_word.id,
+                word_to_id=translate.id,
             )
             self._session.add(wordtranslate)
             self._session.flush()
@@ -149,13 +157,14 @@ class WordService:
     async def remove_favorite(self, word: str, user: UserSchema):
         word = self._session.scalar(select(Word).where(Word.text == word))
         delete(FavoriteWord).where(
-            FavoriteWord.word_id == word.id, FavoriteWord.user_id == user.id,
+            FavoriteWord.word_id == word.id,
+            FavoriteWord.user_id == user.id,
         )
         self._session.commit()
 
     async def get_favorite(
-        self, 
-        user: UserSchema, 
+        self,
+        user: UserSchema,
         page_number: int,
     ) -> list[Word]:
         words = self._session.scalars(
@@ -209,7 +218,8 @@ class QuizeService:
         if quizQuestions == []:
             return []
         selected_games = random.sample(
-            quizQuestions, min(len(quizQuestions), quize_filter.max_question),
+            quizQuestions,
+            min(len(quizQuestions), quize_filter.max_question),
         )
 
         return (
@@ -219,18 +229,24 @@ class QuizeService:
                 ),
             )
         ).all()
-    
+
     async def get_filter_by_user(self, user: UserSchema) -> QuizeFilter:
-        f = self._session.scalar(select(QuizeFilter).where(QuizeFilter.user.id == user.id))
+        f = self._session.scalar(
+            select(QuizeFilter).where(QuizeFilter.user.id == user.id)
+        )
         if f:
             return f
         return QuizeFilter(user=user)
-    
+
     async def get_quize_theme_by_id(self, theme_id) -> None | QuizTheme:
         return self._session.scalar(select(QuizTheme).where(QuizTheme.id == theme_id))
-    
+
     async def get_quize_theme_by_name(self, theme_name) -> None | QuizTheme:
-        return self._session.scalar(select(QuizTheme).where(QuizTheme.name == theme_name))
+        return self._session.scalar(
+            select(QuizTheme).where(QuizTheme.name == theme_name)
+        )
 
     async def update_filter_data(self, user: UserSchema, values) -> None:
-        self._session.execute(update(QuizeFilter).where(QuizeFilter.user.id == user.id).values(values))
+        self._session.execute(
+            update(QuizeFilter).where(QuizeFilter.user.id == user.id).values(values)
+        )

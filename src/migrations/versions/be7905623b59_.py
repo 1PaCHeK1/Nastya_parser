@@ -42,10 +42,14 @@ def upgrade() -> None:
         sa.Column("from_language_id", sa.Integer(), nullable=True),
         sa.Column("to_language_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["from_language_id"], ["languages.id"], ondelete="CASCADE",
+            ["from_language_id"],
+            ["languages.id"],
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["to_language_id"], ["languages.id"], ondelete="CASCADE",
+            ["to_language_id"],
+            ["languages.id"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

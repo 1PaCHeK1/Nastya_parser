@@ -18,7 +18,10 @@ from .items import WordItem
 class SpiderPipeline:
     @inject
     async def process_item(
-        self, item: WordItem, spider, word_service: Annotated[WordService, Inject],
+        self,
+        item: WordItem,
+        spider,
+        word_service: Annotated[WordService, Inject],
     ):
         await word_service.append_word(
             WordCreateSchema(

@@ -9,6 +9,7 @@ router = Router(name="remind")
 
 command_name = "remind"
 
+
 @router.message(
     Command("remind", ignore_case=True),
     # RequiredUserFilter(),
@@ -17,10 +18,7 @@ command_name = "remind"
 async def remind_handler(message: types.Message):
     try:
         seconds, message_text = (
-            message.text
-            .removeprefix(f"/{command_name}")
-            .strip()
-            .split(maxsplit=1)
+            message.text.removeprefix(f"/{command_name}").strip().split(maxsplit=1)
         )
         seconds = int(seconds)
     except ValueError:

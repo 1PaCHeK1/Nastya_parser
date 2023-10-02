@@ -83,7 +83,10 @@ def downgrade() -> None:
         "translates",
         sa.Column("id", sa.INTEGER(), autoincrement=True, nullable=False),
         sa.Column(
-            "from_language_id", sa.INTEGER(), autoincrement=False, nullable=False,
+            "from_language_id",
+            sa.INTEGER(),
+            autoincrement=False,
+            nullable=False,
         ),
         sa.Column("to_language_id", sa.INTEGER(), autoincrement=False, nullable=False),
         sa.ForeignKeyConstraint(

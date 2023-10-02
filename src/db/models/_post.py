@@ -17,10 +17,12 @@ class PostTags(Base):
     __tablename__ = "posttags"
 
     tag_id: Mapped[int] = mapped_column(
-        ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True,
+        ForeignKey("tag.id", ondelete="CASCADE"),
+        primary_key=True,
     )
     post_id: Mapped[int] = mapped_column(
-        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True,
+        ForeignKey("post.id", ondelete="CASCADE"),
+        primary_key=True,
     )
 
 
@@ -45,10 +47,12 @@ class ViewedPost(Base):
     __tablename__ = "viewedpost"
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
     )
     post_id: Mapped[int] = mapped_column(
-        ForeignKey("post.id", ondelete="CASCADE"), primary_key=True,
+        ForeignKey("post.id", ondelete="CASCADE"),
+        primary_key=True,
     )
 
 

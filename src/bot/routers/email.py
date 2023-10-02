@@ -10,15 +10,12 @@ from aioinject import Inject, inject
 router = Router(name="email")
 
 
-@router.message(
-    Command("send_email", ignore_case=True),
-    RequiredUserFilter()
-)
+@router.message(Command("send_email", ignore_case=True), RequiredUserFilter())
 @inject
 async def send_email(
     message: types.Message,
     user: UserSchema,
-    email_service: Annotated[MailService, Inject]
+    email_service: Annotated[MailService, Inject],
 ) -> None:
     if user.email:
         await email_service.send(EmailMessageDto([user.email], "title", "message"))

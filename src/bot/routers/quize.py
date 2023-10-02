@@ -66,7 +66,9 @@ async def change_maximum_quantity_of_questions(
         )
     else:
         try:
-            quize_service.update_filter_data(user, {"max_question": int(message.text.split()[1])})
+            quize_service.update_filter_data(
+                user, {"max_question": int(message.text.split()[1])}
+            )
         except:
             await message.answer("Проверьте правильность ввода команды")
         else:

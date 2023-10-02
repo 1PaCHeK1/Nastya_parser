@@ -16,7 +16,8 @@ router = Router(name="other")
 async def welcome_command(message: types.Message, user: UserSchema | None):
     if user is None:
         await message.answer(
-            texts.welcome_text, reply_markup=inline.no_auth_start_keyboard,
+            texts.welcome_text,
+            reply_markup=inline.no_auth_start_keyboard,
         )
     else:
         await message.answer(texts.welcome_text_auth)

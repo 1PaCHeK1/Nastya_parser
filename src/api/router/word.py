@@ -25,7 +25,9 @@ async def get_all_words(
     params: Annotated[WordFilterParams, Depends()],
     word_service: Annotated[WordService, Inject],
 ) -> list[WordSchema]:
-    words = await word_service.get_words(WordCoreFilter(language=params.language, contain=params.contain))
+    words = await word_service.get_words(
+        WordCoreFilter(language=params.language, contain=params.contain)
+    )
     return WordSchema.model_validate_list(words)
 
 

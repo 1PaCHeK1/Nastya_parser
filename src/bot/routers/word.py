@@ -73,10 +73,12 @@ async def callback(
         case CallbackDataEnum.next_page | CallbackDataEnum.prev_page:
             callback_data = CallbackData[PageNavigator].parse_obj(serialize_data)
             favorite_list = await get_list_favorite(
-                user, callback_data.data.page_number,
+                user,
+                callback_data.data.page_number,
             )
             markup = key_inline.generate_favorite_keyboard(
-                favorite_list, callback_data.data.page_number,
+                favorite_list,
+                callback_data.data.page_number,
             )
             await callback_info.message.edit_reply_markup(markup)
         case CallbackDataEnum.translate_word:

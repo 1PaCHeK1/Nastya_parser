@@ -38,7 +38,8 @@ class TranslateWordService:
         if page.status_code == 200:
             soup = bs4.BeautifulSoup(page.text, "html.parser")
             translations = soup.find("div", class_="t_inline_en") or soup.find(
-                "p", class_="t_inline",
+                "p",
+                class_="t_inline",
             )
             if translations:
                 return translations.text.split(", ")

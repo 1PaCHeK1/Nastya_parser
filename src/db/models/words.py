@@ -51,10 +51,12 @@ class WordTranslate(Base):
     __tablename__ = "wordtranslates"
 
     word_from_id: Mapped[int] = mapped_column(
-        ForeignKey("words.id", ondelete="CASCADE"), primary_key=True,
+        ForeignKey("words.id", ondelete="CASCADE"),
+        primary_key=True,
     )
     word_to_id: Mapped[int] = mapped_column(
-        ForeignKey("words.id", ondelete="CASCADE"), primary_key=True,
+        ForeignKey("words.id", ondelete="CASCADE"),
+        primary_key=True,
     )
 
     # word_from: Mapped[Word] = relationship(

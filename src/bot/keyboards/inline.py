@@ -50,7 +50,8 @@ no_auth_start_keyboard = types.InlineKeyboardMarkup(
 
 
 def generate_favorite_keyboard(
-    favorite_words: list[Word], current_page: int = 0,
+    favorite_words: list[Word],
+    current_page: int = 0,
 ) -> types.InlineKeyboardMarkup:
     buttons = []
     for word in favorite_words:

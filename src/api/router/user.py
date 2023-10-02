@@ -14,7 +14,7 @@ router = APIRouter(prefix="/auth")
 @router.post("/registration")
 @inject
 async def registration(
-    body: UserRegistrationSchema, 
+    body: UserRegistrationSchema,
     usecase: Annotated[RegistrationFromApiUseCase, Inject],
 ) -> UserSchema:
     user = await usecase.execute(UserRegistrationApiDto.from_orm(body))

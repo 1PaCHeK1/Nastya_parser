@@ -1,4 +1,4 @@
-from collections.abc import Generator, Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine, orm
@@ -23,13 +23,8 @@ class Database:
             ),
         )
 
-    @contextmanager
-    def session(self) -> Iterator[Session]:
-        with self.session_factory() as session:
-            yield session
-
 
 @contextmanager
 def get_session(database: Database) -> Generator[Session]:
-    with database.session_factory() as session:
+    with database.session_factory.begin() as session:
         yield session

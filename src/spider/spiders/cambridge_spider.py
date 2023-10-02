@@ -31,5 +31,6 @@ class CambridgeSpiderSpider(scrapy.Spider):
             "//span[@class='trans dtrans dtrans-se ']/text()",
         ).get()
         return WordItem(
-            word=word, translate_words=list(map(str.strip, translate_words.split(", "))),
+            word=word,
+            translate_words=list(map(str.strip, translate_words.split(", "))),
         )

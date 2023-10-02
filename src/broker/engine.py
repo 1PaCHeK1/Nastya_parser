@@ -8,7 +8,7 @@ from settings import BrokerSettings
 settings = BrokerSettings()
 
 
-broker = InMemoryBroker().with_result_backend()
+broker = InMemoryBroker()
 
 
 @asynccontextmanager
